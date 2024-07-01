@@ -1,3 +1,5 @@
+require('dotenv').config(); // dotenv 패키지 로드
+
 const express = require('express');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger/swagger-output.json');
