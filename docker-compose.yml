@@ -1,0 +1,56 @@
+#Docker 컨테이너를 정의하고 관리하기 위해 구성 파일
+#여러 컨테이너와 한 곳에 정리 할 수 있게 해줌
+#파일 버전
+version: '3.8'
+
+services:
+  # MySQL 데이터베이스
+  db:
+    image: mysql:latest
+    container_name: db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql  # MySQL 데이터베이스를 위한 가상 볼륨 설정
+    networks:
+      - app-network
+
+  node:
+    container_name: node
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - TZ=Asia/Seoul
+      - NODE_ENV=development
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+    command: npm start # 컨테이너가 시작될 때 실행할 명령
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: server
+          ignore:
+            - node_modules/
+            - node_volume/
+            - db_data/
+        - action: rebuild
+          path: ./package.json
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db_data:

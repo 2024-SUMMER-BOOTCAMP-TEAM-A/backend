@@ -1,2 +1,4 @@
-db_data
 node_modules
+server/node_modules
+server/db_data
+.env
