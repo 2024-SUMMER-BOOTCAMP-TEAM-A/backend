@@ -2,9 +2,8 @@ pipeline {
     agent any
     
     environment {
-        repository = "jungeunyoon/teama"  //docker hub id와 repository 이름
+        repository = "jungeunyoon/teama-backend"  //docker hub id와 repository 이름
         DOCKERHUB_CREDENTIALS = credentials('team-a-docker-hub') // jenkins에 등록해 놓은 docker hub credentials 이름
-        dockerImage = 'node-backend' 
     }
 
     stages {
