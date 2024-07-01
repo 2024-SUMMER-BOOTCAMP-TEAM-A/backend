@@ -4,6 +4,7 @@ pipeline {
     environment {
         repository = "jungeunyoon/teama-backend"  //docker hub id와 repository 이름
         DOCKERHUB_CREDENTIALS = credentials('team-a-docker-hub') // jenkins에 등록해 놓은 docker hub credentials 이름
+        IMAGE_TAG = "" // docker image tag
     }
 
     stages {
@@ -21,6 +22,21 @@ pipeline {
                 }
             }
         }
+
+        stage('Set Image Tag') {
+            steps {
+                script {
+                    // Set image tag based on branch name
+                    if (env.BRANCH_NAME == 'develop') {
+                        IMAGE_TAG = "1.0.${BUILD_NUMBER}"
+                    } else {
+                        IMAGE_TAG = "0.0.${BUILD_NUMBER}"
+                    }
+                    echo "Image tag set to: ${IMAGE_TAG}"
+                }
+            }
+        }
+
         stage('Building our image') { 
             steps { 
                 script { 
