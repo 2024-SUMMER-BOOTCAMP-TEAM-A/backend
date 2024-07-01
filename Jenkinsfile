@@ -2,18 +2,15 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_COMPOSE_FILE = 'docker-compose-prod.yml'
-        // SQLALCHEMY_DATABASE_URL="${env.SQLALCHEMY_DATABASE_URL}"
-        // MYSQL_ROOT_PASSWORD="${env.MYSQL_ROOT_PASSWORD}"
-        // MYSQL_DATABASE="${env.MYSQL_DATABASE}"
-        // MYSQL_USER="${env.MYSQL_USER}"
-        // MYSQL_PASSWORD="${env.MYSQL_PASSWORD}"
+        repository = "jungeunyoon/teama-backend"  //docker hub id와 repository 이름
+        DOCKERHUB_CREDENTIALS = credentials('team-a-docker-hub') // jenkins에 등록해 놓은 docker hub credentials 이름
+        IMAGE_TAG = "" // docker image tag
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'develop', url: 'https://github.com/2024-SUMMER-BOOTCAMP-TEAM-A/backend.git'
+                git branch: 'develop', url: "https://github.com/2024-SUMMER-BOOTCAMP-TEAM-A/backend.git"
             }
         }
 
@@ -22,32 +19,49 @@ pipeline {
                 script {
                     sh "docker --version"
                     sh "docker compose --version"
-                    sh "echo hello world!"
                 }
             }
         }
 
-    //     stage('Build') {
-    //         steps {
-    //             script {
-    //                 sh "docker compose -f ${DOCKER_COMPOSE_FILE} build"
-    //             }
-    //         }
-    //     }
+        stage('Set Image Tag') {
+            steps {
+                script {
+                    // Set image tag based on branch name
+                    if (env.BRANCH_NAME == 'develop') {
+                        IMAGE_TAG = "1.0.${BUILD_NUMBER}"
+                    } else {
+                        IMAGE_TAG = "0.0.${BUILD_NUMBER}"
+                    }
+                    echo "Image tag set to: ${IMAGE_TAG}"
+                }
+            }
+        }
 
-    //     stage('Deploy') {
-    //         when {
-    //             anyOf {
-    //                 branch 'main'
-    //                 branch 'master'
-    //             }
-    //         }
-    //         steps {
-    //             script {
-    //                 sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d"
-    //             }
-    //         }
-    //     }
+        stage('Building our image') { 
+            steps { 
+                script { 
+                    sh "docker build -t ${repository}:0.0.${BUILD_NUMBER} ." // docker build
+
+                }
+            } 
+        }
+        stage('Login'){
+            steps{
+                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin" // docker hub 로그인
+            }
+        }
+        stage('Deploy our image') { 
+            steps { 
+                script {
+                    sh "docker push ${repository}:0.0.${BUILD_NUMBER}"//docker push
+                } 
+            }
+        } 
+        stage('Cleaning up') { 
+            steps { 
+                sh "docker rmi ${repository}:0.0.${BUILD_NUMBER}" // docker image 제거
+            }
+        } 
     }
 
     post {
