@@ -2,18 +2,15 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_COMPOSE_FILE = 'docker-compose-prod.yml'
-        // SQLALCHEMY_DATABASE_URL="${env.SQLALCHEMY_DATABASE_URL}"
-        // MYSQL_ROOT_PASSWORD="${env.MYSQL_ROOT_PASSWORD}"
-        // MYSQL_DATABASE="${env.MYSQL_DATABASE}"
-        // MYSQL_USER="${env.MYSQL_USER}"
-        // MYSQL_PASSWORD="${env.MYSQL_PASSWORD}"
+        repository = "jungeunyoon/teama"  //docker hub id와 repository 이름
+        DOCKERHUB_CREDENTIALS = credentials('team-a-docker-hub') // jenkins에 등록해 놓은 docker hub credentials 이름
+        dockerImage = 'node-backend' 
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'develop', url: 'https://github.com/2024-SUMMER-BOOTCAMP-TEAM-A/backend.git'
+                git branch: 'develop', url: "https://github.com/2024-SUMMER-BOOTCAMP-TEAM-A/backend.git"
             }
         }
 
@@ -22,32 +19,34 @@ pipeline {
                 script {
                     sh "docker --version"
                     sh "docker compose --version"
-                    sh "echo hello world!"
                 }
             }
         }
+        stage('Building our image') { 
+            steps { 
+                script { 
+                    sh "docker build -t ${repository}/$dockerImage:${BUILD_NUMBER} ." // docker build
 
-    //     stage('Build') {
-    //         steps {
-    //             script {
-    //                 sh "docker compose -f ${DOCKER_COMPOSE_FILE} build"
-    //             }
-    //         }
-    //     }
-
-    //     stage('Deploy') {
-    //         when {
-    //             anyOf {
-    //                 branch 'main'
-    //                 branch 'master'
-    //             }
-    //         }
-    //         steps {
-    //             script {
-    //                 sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d"
-    //             }
-    //         }
-    //     }
+                }
+            } 
+        }
+        stage('Login'){
+            steps{
+                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin" // docker hub 로그인
+            }
+        }
+        stage('Deploy our image') { 
+            steps { 
+                script {
+                    sh "docker push ${repository}/$dockerImage:${BUILD_NUMBER}"//docker push
+                } 
+            }
+        } 
+        stage('Cleaning up') { 
+            steps { 
+                sh "docker rmi ${repository}/$dockerImage:${BUILD_NUMBER}" // docker image 제거
+            }
+        } 
     }
 
     post {
