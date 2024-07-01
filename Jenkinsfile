@@ -24,7 +24,7 @@ pipeline {
         stage('Building our image') { 
             steps { 
                 script { 
-                    sh "docker build -t ${repository}:${BUILD_NUMBER} ." // docker build
+                    sh "docker build -t ${repository}:0.0.${BUILD_NUMBER} ." // docker build
 
                 }
             } 
@@ -37,13 +37,13 @@ pipeline {
         stage('Deploy our image') { 
             steps { 
                 script {
-                    sh "docker push ${repository}:${BUILD_NUMBER}"//docker push
+                    sh "docker push ${repository}:0.0.${BUILD_NUMBER}"//docker push
                 } 
             }
         } 
         stage('Cleaning up') { 
             steps { 
-                sh "docker rmi ${repository}:${BUILD_NUMBER}" // docker image 제거
+                sh "docker rmi ${repository}:0.0.${BUILD_NUMBER}" // docker image 제거
             }
         } 
     }
