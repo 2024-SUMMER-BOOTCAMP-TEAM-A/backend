@@ -84,6 +84,8 @@ services:
       - '8000:8000'
     depends_on:
       - db
+      - redis
+      - mongodb
     command: npm start # 컨테이너가 시작될 때 실행할 명령
     develop:
       watch:
