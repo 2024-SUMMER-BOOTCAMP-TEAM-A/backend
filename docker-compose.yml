@@ -19,6 +19,57 @@ services:
       - db_data:/var/lib/mysql  # MySQL 데이터베이스를 위한 가상 볼륨 설정
     networks:
       - app-network
+    
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:      
+      - "6379:6379"
+    networks:
+      - app-network
+
+  redis_insight:
+    image: redislabs/redisinsight:latest
+    container_name: redis_insight
+    ports:
+      - "5540:5540"
+    restart: always
+    networks:
+      - app-network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+        - "27017:27017"
+    environment:
+        - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+        - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongodb:/data/db  # MongoDB 데이터베이스를 위한 가상 볼륨 설정
+    networks:
+        - app-network
+    hostname: mongodb
+    
+  mongodb_insight:  
+    image: mongo-express:latest
+    container_name: mongo_insight
+    depends_on:
+      - mongodb
+    ports:
+        - "8888:8081"
+    environment:
+        - ME_CONFIG_MONGODB_SERVER=mongodb
+        - ME_CONFIG_MONGODB_PORT=27017
+        - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
+        - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+        - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_INITDB_ROOT_USERNAME}
+        - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+        - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
+        - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
+    networks:
+        - app-network
+    hostname: mongo-express
 
   node:
     container_name: node
@@ -54,3 +105,4 @@ networks:
 
 volumes:
   db_data:
+  mongodb:
