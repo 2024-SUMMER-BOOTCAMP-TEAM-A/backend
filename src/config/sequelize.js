@@ -1,4 +1,5 @@
 const { Sequelize } = require('sequelize');
+require('dotenv').config(); // dotenv 패키지 로드
 const config = require('./config.js');
 
 const env = process.env.NODE_ENV || 'development';

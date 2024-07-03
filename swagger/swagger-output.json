@@ -20,6 +20,19 @@
           }
         }
       }
+    },
+    "/cache": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "성공"
+          },
+          "500": {
+            "description": "내부 서버 오류"
+          }
+        }
+      }
     }
   }
 }
