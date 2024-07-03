@@ -1,10 +1,6 @@
-#Docker 컨테이너를 정의하고 관리하기 위해 구성 파일
-#여러 컨테이너와 한 곳에 정리 할 수 있게 해줌
-#파일 버전
 version: '3.8'
 
 services:
-  # MySQL 데이터베이스
   db:
     image: mysql:latest
     container_name: db
@@ -16,24 +12,26 @@ services:
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
-      - db_data:/var/lib/mysql  # MySQL 데이터베이스를 위한 가상 볼륨 설정
+      - db_data:/var/lib/mysql
     networks:
       - app-network
-    
+
   redis:
     image: redis:latest
     container_name: redis
-    ports:      
+    ports:
       - "6379:6379"
     networks:
       - app-network
+    hostname: redis
 
   redis_insight:
     image: redislabs/redisinsight:latest
     container_name: redis_insight
     ports:
       - "5540:5540"
-    restart: always
+    depends_on:
+      - redis
     networks:
       - app-network
 
@@ -41,34 +39,30 @@ services:
     image: mongo:latest
     container_name: mongo
     ports:
-        - "27017:27017"
+      - "27017:27017"
     environment:
-        - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-        - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     volumes:
-      - mongodb:/data/db  # MongoDB 데이터베이스를 위한 가상 볼륨 설정
+      - mongodb:/data/db
     networks:
-        - app-network
+      - app-network
     hostname: mongodb
-    
-  mongodb_insight:  
+
+  mongodb_insight:
     image: mongo-express:latest
     container_name: mongo_insight
     depends_on:
       - mongodb
     ports:
-        - "8888:8081"
+      - "8888:8081"
     environment:
-        - ME_CONFIG_MONGODB_SERVER=mongodb
-        - ME_CONFIG_MONGODB_PORT=27017
-        - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
-        - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
-        - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_INITDB_ROOT_USERNAME}
-        - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-        - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
-        - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     networks:
-        - app-network
+      - app-network
     hostname: mongo-express
 
   node:
@@ -78,26 +72,19 @@ services:
       dockerfile: Dockerfile
     restart: always
     environment:
-      - TZ=Asia/Seoul
-      - NODE_ENV=development
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - REDIS_URL=redis://redis:6379
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     ports:
       - '8000:8000'
     depends_on:
       - db
       - redis
       - mongodb
-    command: npm start # 컨테이너가 시작될 때 실행할 명령
-    develop:
-      watch:
-        - action: sync
-          path: .
-          target: server
-          ignore:
-            - node_modules/
-            - node_volume/
-            - db_data/
-        - action: rebuild
-          path: ./package.json
     networks:
       - app-network
 
