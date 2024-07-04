@@ -1,7 +1,7 @@
 require('dotenv').config(); // dotenv 패키지 로드: 환경 변수 파일(.env)을 로드하여 프로세스 환경 변수로 설정
 
 const express = require('express'); // express 패키지 로드
-const userRoutes = require('../routes/userRoutes');
+const userRoutes = require('./src/routes/userRoutes');
 const swaggerUi = require('swagger-ui-express'); // swagger-ui-express 패키지 로드
 const swaggerDocument = require('./swagger/swagger-output.json'); // Swagger 설정 파일 로드
 const mongoose = require('mongoose'); // mongoose 패키지 로드
