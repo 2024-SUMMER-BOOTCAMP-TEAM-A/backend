@@ -1,71 +1,33 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "1.0.0",
-    "title": "API Documentation",
-    "description": "API Documentation"
+    "title": "PersonA API",
+    "description": "2024-SUMMER-BOOTCAMP-TEAM-A",
+    "version": "1.0.0"
   },
   "host": "localhost:8000",
   "basePath": "/",
   "schemes": [
     "http"
   ],
+  "tags": [
+    {
+      "name": "person",
+      "description": "Person 관련 API"
+    },
+    {
+      "name": "user",
+      "description": "User 관련 API"
+    },
+    {
+      "name": "test",
+      "description": "테스트 API"
+    }
+  ],
   "paths": {
-    "/": {
-      "get": {
-        "summary": "Welcome 메시지 반환",
-        "responses": {
-          "200": {
-            "description": "성공",
-            "schema": {
-              "type": "string"
-            }
-          }
-        }
-      }
-    },
-    "/persons": {
-      "get": {
-        "summary": "전체 Persons 조회",
-        "responses": {
-          "200": {
-            "description": "성공",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Person"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/persons/{id}": {
-      "get": {
-        "summary": "특정 Person 조회",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "integer"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "성공",
-            "schema": {
-              "$ref": "#/definitions/Person"
-            }
-          },
-          "404": {
-            "description": "Person not found"
-          }
-        }
-      }
-    },
     "/cache": {
       "get": {
+        "tags": ["test"],
         "description": "",
         "responses": {
           "200": {
@@ -76,34 +38,76 @@
           }
         }
       }
-    }
-  },
-  "definitions": {
-    "Person": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "name": {
-          "type": "string"
-        },
-        "content": {
-          "type": "string"
-        },
-        "count": {
-          "type": "integer"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updated_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "is_deleted": {
-          "type": "boolean"
+    },
+    "/api/v1/persons/": {
+      "get": {
+        "tags": ["person"],
+        "description": "Retrieve a list of all persons.",
+        "responses": {
+          "200": {
+            "description": "성공"
+          },
+          "500": {
+            "description": "내부 서버 오류"
+          }
+        }
+      }
+    },
+    "/api/v1/persons/{id}": {
+      "get": {
+        "tags": ["person"],
+        "description": "Retrieve details of a person by their ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공"
+          },
+          "404": {
+            "description": "찾을 수 없음"
+          },
+          "500": {
+            "description": "내부 서버 오류"
+          }
+        }
+      }
+    },
+    "/api/v1/nicknames/": {
+      "post": {
+        "tags": ["user"],
+        "description": "This endpoint allows you to create a new user by providing a nickname.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nickname": {
+                  "type": "string",
+                  "example": "PersonA"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "작성됨"
+          },
+          "400": {
+            "description": "잘못된 요청"
+          },
+          "500": {
+            "description": "내부 서버 오류"
+          }
         }
       }
     }
