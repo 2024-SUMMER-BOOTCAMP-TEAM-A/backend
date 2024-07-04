@@ -23,21 +23,11 @@ app.get('/', (req, res) => {
 // Swagger UI 설정
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// 사람 전체 조회
-app.get('/persons', async (req, res) => {
-  const persons = await db.Person.findAll({ attributes: ['id', 'name'] });
-  res.json(persons);
-});
 
-// 특정 사람 조회
-app.get('/persons/:id', async (req, res) => {
-  const person = await db.Person.findByPk(req.params.id, { attributes: ['name', 'content'] });
-  if (person) {
-    res.json(person);
-  } else {
-    res.status(404).send('Person not found');
-  }
-});
+//사람조회
+const personRoutes = require('./src/routes/personRoutes');
+app.use('/persons', personRoutes);
+
 
 // 서버 포트 설정
 const PORT = 8000; // 포트 번호를 8000으로 명시
