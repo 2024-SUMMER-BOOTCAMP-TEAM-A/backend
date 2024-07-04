@@ -10,7 +10,7 @@ class AIController {
     }
 
     try {
-      const response = await langchainClient.generateChatResponse(userMessage);
+      const response = await OpenAIModel.chat(userMessage);
       res.json({ response });
     } catch (error) {
       console.error('Error generating chat response:', error);
@@ -34,6 +34,17 @@ class AIController {
 //       res.status(500).json({ error: 'Error generating summary' });
 //     }
 //   }
+
+  // 대화 초기화
+  async resetChat(req, res) {
+    try {
+      OpenAIModel.resetChat();  // 대화 상태를 초기화합니다.
+      res.status(200).json({ message: 'Chat session reset successfully' });
+    } catch (error) {
+      console.error('Error resetting chat session:', error);
+      res.status(500).json({ error: 'Error resetting chat session' });
+    }
+  }
 
 //   //tts
 }
