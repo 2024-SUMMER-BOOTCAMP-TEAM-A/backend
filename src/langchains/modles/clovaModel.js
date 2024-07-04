@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { clovaApiKey, clovaModel } = require('../../config/langchainConfig');  // Clova API 키와 모델 정보를 가져옵니다.
+const { clovaApiKey, clovaModel } = require('../../config/langchainConfig');
 
 const TTS_API_URL = 'https://clova.ai/tts/v1/tts';
 
