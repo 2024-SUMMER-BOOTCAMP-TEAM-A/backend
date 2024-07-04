@@ -2,17 +2,30 @@ const swaggerAutogen = require('swagger-autogen')({ language: 'ko' });
 
 const doc = {
   info: {
-    title: "타이틀 입력",
-    description: "설명 입력",
+    title: "PersonA API",
+    description: "2024-SUMMER-BOOTCAMP-TEAM-A",
   },
-  host: "8000",
+  host: "localhost:8000",
   schemes: ["http"],
-  // schemes: ["https" ,"http"],
+  tags: [
+    {
+      name: "person",
+      description: "Person 관련 API"
+    },
+    {
+      name: "user",
+      description: "User 관련 API"
+    },
+    {
+      name: "test",
+      description: "테스트 API"
+    }
+  ],
 };
 
-const outputFile = "../swagger/swagger-output.json";	
-const endpointsFiles = ["../app.js"];
+const outputFile = '../swagger/swagger-output.json';	
+const endpointsFiles = ['../app.js']; // 메인 파일을 지정
 
 swaggerAutogen(outputFile, endpointsFiles, doc).then(() => {
     require('../app'); // 서버 파일 실행
-  });
+});
