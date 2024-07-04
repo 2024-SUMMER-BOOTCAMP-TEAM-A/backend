@@ -6,8 +6,11 @@ const swaggerDocument = require('./swagger/swagger-output.json'); // Swagger 설
 const mongoose = require('mongoose'); // mongoose 패키지 로드
 const { createClient } = require('redis'); // 최신 redis 클라이언트 로드
 const { Sequelize } = require('sequelize'); // Sequelize 패키지 로드
-const app = express(); // express 애플리케이션 생성
 const db = require('./src/models'); // 데이터베이스 모델 로드
+const cors = require('cors'); // cors 패키지 로드
+
+const app = express(); // express 애플리케이션 생성
+app.use(cors()); // CORS 미들웨어 추가
 
 // const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
 const mongoURI = process.env.MONGO_DOCKER_URL; // 도커로 실행시 
