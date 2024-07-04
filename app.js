@@ -77,28 +77,7 @@ async function connectSequelize() {
   }
 }
 
-/**
- * @swagger
- * /:
- *   get:
- *     summary: Welcome 메시지 반환
- *     responses:
- *       200:
- *         description: 성공
- */
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-/**
- * @swagger
- * /cache:
- *   get:
- *     summary: Redis 캐시 테스트
- *     responses:
- *       200:
- *         description: 성공
- */
+// Redis 캐시 테스트 라우트
 app.get('/cache', async (req, res) => {
   const key = 'test_key';
   const value = 'test_value';
@@ -139,3 +118,7 @@ const apiPrefix = '/api/v1';
 app.use(`${apiPrefix}/persons`, personRoutes);
 app.use(`${apiPrefix}/nicknames`, userRoutes);
 app.use(`/ai`, aiRoutes);
+
+// 스웨거 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
