@@ -1,11 +1,11 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "타이틀 입력",
-    "description": "설명 입력",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "title": "API Documentation",
+    "description": "API Documentation"
   },
-  "host": "8000",
+  "host": "localhost:8000",
   "basePath": "/",
   "schemes": [
     "http"
@@ -13,11 +13,97 @@
   "paths": {
     "/": {
       "get": {
+        "summary": "Welcome 메시지 반환",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/persons": {
+      "get": {
+        "summary": "전체 Persons 조회",
+        "responses": {
+          "200": {
+            "description": "성공",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Person"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/persons/{id}": {
+      "get": {
+        "summary": "특정 Person 조회",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "schema": {
+              "$ref": "#/definitions/Person"
+            }
+          },
+          "404": {
+            "description": "Person not found"
+          }
+        }
+      }
+    },
+    "/cache": {
+      "get": {
         "description": "",
         "responses": {
           "200": {
             "description": "성공"
+          },
+          "500": {
+            "description": "내부 서버 오류"
           }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Person": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "count": {
+          "type": "integer"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "is_deleted": {
+          "type": "boolean"
         }
       }
     }
