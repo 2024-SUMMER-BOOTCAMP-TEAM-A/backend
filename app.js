@@ -8,12 +8,20 @@ const { createClient } = require('redis'); // 최신 redis 클라이언트 로�
 const { Sequelize } = require('sequelize'); // Sequelize 패키지 로드
 const db = require('./src/models'); // 데이터베이스 모델 로드
 const cors = require('cors'); // cors 패키지 로드
-
+const http = require('http'); // http 패키지 로드
+const path = require('path'); // path 패키지 로드
 const app = express(); // express 애플리케이션 생성
+
+
+// Socket.io 설정
+const server = http.createServer(app); // http 서버 생성
+const Socket = require('socket.io'); // socket.io 패키지 로드
+const io = Socket(server);// socket.io 서버 생성
+
 app.use(cors()); // CORS 미들웨어 추가
 
-// const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
-const mongoURI = process.env.MONGO_DOCKER_URL; // 도커로 실행시 
+const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
+// const mongoURI = process.env.MONGO_DOCKER_URL; // 도커로 실행시 
 
 
 // MongoDB 연결 설정 함수
@@ -32,8 +40,8 @@ async function connectMongoDB() {
 
 // Redis 클라이언트 설정 함수
 const redisClient = createClient({
-  // url: 'redis://localhost:6379' // 로컬로 실행시
-  url: 'redis://redis:6379' // 노드 서버를 Docker Compose로 빌드할 경우
+  url: 'redis://localhost:6379' // 로컬로 실행시
+  // url: 'redis://redis:6379' // 노드 서버를 Docker Compose로 빌드할 경우
 });
 
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
@@ -53,8 +61,8 @@ async function connectRedis() {
 
 // Sequelize 연결 설정 함수
 const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USER, process.env.MYSQL_PASSWORD, {
-  host: 'db',// 도커로 실행시
-  // host: 'localhost', // 로컬로 실행시
+  // host: 'db',// 도커로 실행시
+  host: 'localhost', // 로컬로 실행시
   dialect: 'mysql',
 });
 
@@ -71,45 +79,6 @@ async function connectSequelize() {
   }
 }
 
-/**
- * @swagger
- * /:
- *   get:
- *     summary: Welcome 메시지 반환
- *     responses:
- *       200:
- *         description: 성공
- */
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-/**
- * @swagger
- * /cache:
- *   get:
- *     summary: Redis 캐시 테스트
- *     responses:
- *       200:
- *         description: 성공
- */
-app.get('/cache', async (req, res) => {
-  const key = 'test_key';
-  const value = 'test_value';
-
-  try {
-    // Redis에 데이터 설정
-    await redisClient.set(key, value);
-    
-    // Redis에서 데이터 가져오기
-    const reply = await redisClient.get(key);
-    
-    res.status(200).send(`Redis value: ${reply}`);
-  } catch (err) {
-    res.status(500).send('Redis error');
-  }
-});
-
 // 서버 포트 설정
 const PORT = 8000; // 포트 번호를 8000으로 명시
 
@@ -120,7 +89,7 @@ const PORT = 8000; // 포트 번호를 8000으로 명시
   await connectSequelize();
 
   db.sequelize.sync().then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
   });
@@ -130,3 +99,12 @@ const PORT = 8000; // 포트 번호를 8000으로 명시
 //사람조회
 const personRoutes = require('./src/routes/personRoutes');
 app.use('/persons', personRoutes);
+
+
+
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
+require('./src/socket/chat')(io);
