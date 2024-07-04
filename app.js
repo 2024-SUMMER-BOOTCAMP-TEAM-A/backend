@@ -49,7 +49,6 @@ async function connectRedis() {
 }
 
 // Sequelize 연결 설정 함수
-// Sequelize 연결 설정 함수
 const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USER, process.env.MYSQL_PASSWORD, {
   host: 'db',// 도커로 실행시
   // host: 'localhost', // 로컬로 실행시
@@ -123,3 +122,8 @@ const PORT = 8000; // 포트 번호를 8000으로 명시
     });
   });
 })();
+
+
+//사람조회
+const personRoutes = require('./src/routes/personRoutes');
+app.use('/persons', personRoutes);
