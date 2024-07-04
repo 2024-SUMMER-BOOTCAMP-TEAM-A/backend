@@ -138,4 +138,4 @@ const apiPrefix = '/api/v1';
 // 라우트 설정
 app.use(`${apiPrefix}/persons`, personRoutes);
 app.use(`${apiPrefix}/nicknames`, userRoutes);
-app.use(`${apiPrefix}/ai`, aiRoutes);
+app.use(`/ai`, aiRoutes);

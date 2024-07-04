@@ -1,6 +1,11 @@
 const langchainClient = require('../langchains/langchainClient');
+const OpenAIModel = require('../langchains/models/openaiModel');
 
 class AIController {
+  constructor() {
+    this.openAIModelInstance = new OpenAIModel(); // 인스턴스 생성
+  }
+
   // 대화 생성
   async chat(req, res) {
     const { userMessage } = req.body;
@@ -10,7 +15,7 @@ class AIController {
     }
 
     try {
-      const response = await OpenAIModel.chat(userMessage);
+      const response = await this.openAIModelInstance.chat(userMessage);
       res.json({ response });
     } catch (error) {
       console.error('Error generating chat response:', error);
@@ -18,27 +23,10 @@ class AIController {
     }
   }
 
-//   // 대화 요약
-//   async summarize(req, res) {
-//     const { conversationHistory } = req.body;
-
-//     if (!conversationHistory || !conversationHistory.length) {
-//       return res.status(400).json({ error: 'conversationHistory is required' });
-//     }
-
-//     try {
-//       const summary = await langchainClient.generateSummary(conversationHistory);
-//       res.json({ summary });
-//     } catch (error) {
-//       console.error('Error generating summary:', error);
-//       res.status(500).json({ error: 'Error generating summary' });
-//     }
-//   }
-
   // 대화 초기화
   async resetChat(req, res) {
     try {
-      OpenAIModel.resetChat();  // 대화 상태를 초기화합니다.
+      this.openAIModelInstance.resetChat();  // 대화 상태를 초기화합니다.
       res.status(200).json({ message: 'Chat session reset successfully' });
     } catch (error) {
       console.error('Error resetting chat session:', error);
@@ -46,7 +34,22 @@ class AIController {
     }
   }
 
-//   //tts
+  // 대화 요약
+  async summarize(req, res) {
+    const { conversationHistory } = req.body;
+
+    if (!conversationHistory || !conversationHistory.length) {
+      return res.status(400).json({ error: 'conversationHistory is required' });
+    }
+
+    try {
+      const summary = await this.openAIModelInstance.summarize(conversationHistory);
+      res.json({ summary });
+    } catch (error) {
+      console.error('Error generating conversation summary:', error);
+      res.status(500).json({ error: 'Error generating conversation summary' });
+    }
+  }
 }
 
-module.exports = new AIController();
+module.exports = AIController;

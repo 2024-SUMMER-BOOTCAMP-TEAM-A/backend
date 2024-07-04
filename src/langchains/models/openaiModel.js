@@ -4,13 +4,11 @@ const { openaiApiKey, openaiModel } = require('../../config/langchainConfig');
 const openaiClient = new OpenAI({ apiKey: openaiApiKey });
 
 class OpenAIModel {
-
   constructor() {
     this.messages = [];  // 대화 상태를 유지할 메시지 배열
   }
 
   async chat(userMessage) {
-
     if (!userMessage) {
       throw new Error('userMessage is required');
     }
@@ -27,12 +25,17 @@ class OpenAIModel {
         temperature: 0.7  // 생성의 창의성 정도
       });
 
-      // OpenAI의 응답 메시지를 대화 상태에 추가합니다.
-      const aiMessage = response.data.choices[0].message.content;
-      this.messages.push({ role: 'assistant', content: aiMessage });
+      // 응답 전체를 로그로 출력
+      console.log('OpenAI API response:', JSON.stringify(response, null, 2));
 
-      // AI의 응답을 반환합니다.
-      return aiMessage;
+      // OpenAI의 응답 메시지를 대화 상태에 추가합니다.
+      if (response && response.choices && response.choices.length > 0) {
+        const aiMessage = response.choices[0].message.content;
+        this.messages.push({ role: 'assistant', content: aiMessage });
+        return aiMessage;
+      } else {
+        throw new Error('Invalid response structure from OpenAI API');
+      }
     } catch (error) {
       console.error('Error generating chat response:', error);
       throw error;
@@ -44,30 +47,32 @@ class OpenAIModel {
     this.messages = [];  // 대화 상태를 초기화합니다.
   }
 
-  // // 대화 요약
-  // static async summarize(conversationHistory) {
-  //   if (!conversationHistory || !conversationHistory.length) {
-  //     throw new Error('conversationHistory is required');
-  //   }
-
-  //   const conversationText = conversationHistory
-  //     .map(entry => `${entry.role}: ${entry.content}`)
-  //     .join('\n');
-  //   const summaryPrompt = `Please summarize the following conversation:\n\n${conversationText}`;
+  // 대화 요약
+  async summarize(conversationHistory) {
+    if (!conversationHistory || !conversationHistory.length) {
+      throw new Error('conversationHistory is required');
+    }
+    const conversationText = conversationHistory
+      .map(entry => `${entry.role}: ${entry.content}`)
+      .join('\n');
+    const summaryPrompt = { role: 'system', content: `Please summarize the following conversation:\n\n${conversationText}` };
     
-  //   try {
-  //     const response = await openaiClient.createCompletion({
-  //       model: openaiModel,
-  //       prompt: summaryPrompt,
-  //       max_tokens: 150,
-  //       temperature: 0.3
-  //     });
-  //     return response.data.choices[0].text.trim();
-  //   } catch (error) {
-  //     console.error('Error generating summary:', error);
-  //     throw error;
-  //   }
-  // }
+    try {
+      const response = await openaiClient.chat.completions.create({
+        model: openaiModel,
+        messages: [summaryPrompt],
+        max_tokens: 150,
+        temperature: 0.3,
+      });
+      if (!response || !response.choices || !response.choices[0].message.content) {
+        throw new Error('Invalid response from OpenAI API');
+      }
+      return response.choices[0].message.content.trim();
+    } catch (error) {
+      console.error('Error generating summary:', error);
+      throw error;
+    }
+  }
 }
 
-module.exports = new OpenAIModel();
+module.exports = OpenAIModel;
