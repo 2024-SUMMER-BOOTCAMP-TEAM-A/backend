@@ -12,8 +12,8 @@ const db = require('./src/models'); // 데이터베이스 모델 로드
 
 app.use(express.json());  // Middleware 설정 
 
-// const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
-const mongoURI = process.env.MONGO_DOCKER_URL; // 도커로 실행시 
+const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
+// const mongoURI = process.env.MONGO_DOCKER_URL; // 도커로 실행시 
 
 
 // MongoDB 연결 설정 함수
