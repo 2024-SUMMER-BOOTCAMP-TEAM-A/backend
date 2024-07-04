@@ -1,6 +1,7 @@
 require('dotenv').config(); // dotenv 패키지 로드: 환경 변수 파일(.env)을 로드하여 프로세스 환경 변수로 설정
 
 const express = require('express'); // express 패키지 로드
+const userRoutes = require('../routes/userRoutes');
 const swaggerUi = require('swagger-ui-express'); // swagger-ui-express 패키지 로드
 const swaggerDocument = require('./swagger/swagger-output.json'); // Swagger 설정 파일 로드
 const mongoose = require('mongoose'); // mongoose 패키지 로드
@@ -8,6 +9,8 @@ const { createClient } = require('redis'); // 최신 redis 클라이언트 로�
 const { Sequelize } = require('sequelize'); // Sequelize 패키지 로드
 const app = express(); // express 애플리케이션 생성
 const db = require('./src/models'); // 데이터베이스 모델 로드
+
+app.use(express.json());  // Middleware 설정 
 
 // const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
 const mongoURI = process.env.MONGO_DOCKER_URL; // 도커로 실행시 
@@ -106,6 +109,10 @@ app.get('/cache', async (req, res) => {
     res.status(500).send('Redis error');
   }
 });
+
+
+// 라우트  설정 
+app.use('/users', userRoutes);
 
 // 서버 포트 설정
 const PORT = 8000; // 포트 번호를 8000으로 명시
