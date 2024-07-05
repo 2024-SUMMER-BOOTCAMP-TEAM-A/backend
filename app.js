@@ -8,16 +8,17 @@ const { createClient } = require('redis'); // 최신 redis 클라이언트 로�
 const { Sequelize } = require('sequelize'); // Sequelize 패키지 로드
 const db = require('./src/models'); // 데이터베이스 모델 로드
 const cors = require('cors'); // cors 패키지 로드
-
+const http = require('http'); // http 패키지 로드
+const path = require('path'); // path 패키지 로드
 const app = express(); // express 애플리케이션 생성
+
+
+// Socket.io 설정
+const server = http.createServer(app); // http 서버 생성
+const Socket = require('socket.io'); // socket.io 패키지 로드
+const io = Socket(server);// socket.io 서버 생성
+
 app.use(cors()); // CORS 미들웨어 추가
-
-const personRoutes = require('./src/routes/personRoutes');
-const userRoutes = require('./src/routes/userRoutes');
-const aiRoutes = require('./src/routes/aiRoutes');
-const logRoutes = require('./src/routes/logRoutes');
-
-
 app.use(express.json());  // Middleware 설정 
 
 const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
@@ -79,24 +80,6 @@ async function connectSequelize() {
   }
 }
 
-// Redis 캐시 테스트 라우트
-app.get('/cache', async (req, res) => {
-  const key = 'test_key';
-  const value = 'test_value';
-
-  try {
-    // Redis에 데이터 설정
-    await redisClient.set(key, value);
-    
-    // Redis에서 데이터 가져오기
-    const reply = await redisClient.get(key);
-    
-    res.status(200).send(`Redis value: ${reply}`);
-  } catch (err) {
-    res.status(500).send('Redis error');
-  }
-});
-
 // 서버 포트 설정
 const PORT = 8000; // 포트 번호를 8000으로 명시
 
@@ -107,7 +90,7 @@ const PORT = 8000; // 포트 번호를 8000으로 명시
   await connectSequelize();
 
   db.sequelize.sync().then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
   });
@@ -115,6 +98,12 @@ const PORT = 8000; // 포트 번호를 8000으로 명시
 
 // 기본 경로 설정
 const apiPrefix = '/api/v1';
+
+const personRoutes = require('./src/routes/personRoutes');
+const userRoutes = require('./src/routes/userRoutes');
+const aiRoutes = require('./src/routes/aiRoutes');
+const logRoutes = require('./src/routes/logRoutes');
+
 
 // 라우트 설정
 app.use(`${apiPrefix}/persons`, personRoutes);
@@ -124,4 +113,15 @@ app.use(`${apiPrefix}/logs`, logRoutes);
 
 // 스웨거 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+const personRoutes = require('./src/routes/personRoutes');
+app.use('/persons', personRoutes);
+
+
+// 소켓 
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
+require('./src/socket/chat')(io);
 
