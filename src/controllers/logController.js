@@ -1,4 +1,4 @@
-const logService = require('./logService');
+const logService = require('../service/logService');
 
 class LogController {
   // 채팅 로그를 요약하고 저장

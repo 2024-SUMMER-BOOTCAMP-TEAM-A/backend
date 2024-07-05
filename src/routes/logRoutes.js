@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const logController = require('./logController');
+const logController = require('../controllers/logController');
 
 // 채팅 로그 요약 생성 및 저장
 router.post('/create-summary', logController.createSummary);

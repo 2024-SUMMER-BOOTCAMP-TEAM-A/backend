@@ -1,4 +1,4 @@
-const logChain = require('./logChain');
+const logChain = require('../langchains/chains/logChain');
 
 class LogService {
   // 채팅 로그를 요약하고 저장
