@@ -12,11 +12,10 @@ const http = require('http'); // http 패키지 로드
 const path = require('path'); // path 패키지 로드
 const app = express(); // express 애플리케이션 생성
 
-
 // Socket.io 설정
 const server = http.createServer(app); // http 서버 생성
 const Socket = require('socket.io'); // socket.io 패키지 로드
-const io = Socket(server);// socket.io 서버 생성
+const io = Socket(server); // socket.io 서버 생성
 
 app.use(cors()); // CORS 미들웨어 추가
 app.use(express.json());  // Middleware 설정 
@@ -113,10 +112,6 @@ app.use(`${apiPrefix}/logs`, logRoutes);
 
 // 스웨거 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-const personRoutes = require('./src/routes/personRoutes');
-app.use('/persons', personRoutes);
-
 
 // 소켓 
 app.get('/', (req, res) => {

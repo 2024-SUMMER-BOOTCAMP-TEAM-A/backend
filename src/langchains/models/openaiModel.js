@@ -19,7 +19,7 @@ class OpenAIModel {
     try {
       // OpenAI API를 호출하여 대화 응답을 생성합니다.
       const response = await openaiClient.chat.completions.create({
-        model: openaiModel,  // 사용할 모델을 설정합니다.
+        model: openai.model,  // 사용할 모델을 설정합니다.
         messages: this.messages,  // 대화 상태에 있는 모든 메시지를 전송합니다.
         max_tokens: 150,  // 최대 토큰 수
         temperature: 0.7  // 생성의 창의성 정도
@@ -59,7 +59,7 @@ class OpenAIModel {
     
     try {
       const response = await openaiClient.chat.completions.create({
-        model: openaiModel,
+        model: openai.Model,
         messages: [summaryPrompt],
         max_tokens: 150,
         temperature: 0.3,
