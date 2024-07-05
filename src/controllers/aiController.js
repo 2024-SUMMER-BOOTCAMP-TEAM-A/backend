@@ -1,9 +1,12 @@
 const langchainClient = require('../langchains/langchainClient');
+
 const OpenAIModel = require('../langchains/models/openaiModel');
+const ClovaTtsModel = require('../langchains/models/clovaModel'); 
 
 class AIController {
   constructor() {
     this.openAIModelInstance = new OpenAIModel(); // 인스턴스 생성
+    this.clovaTtsModelInstance = new ClovaTtsModel(); // ClovaTtsModel 인스턴스 생성
   }
 
   // 대화 생성
@@ -48,6 +51,24 @@ class AIController {
     } catch (error) {
       console.error('Error generating conversation summary:', error);
       res.status(500).json({ error: 'Error generating conversation summary' });
+    }
+  }
+
+  // tts
+  async tts(req, res) {
+    const { text } = req.body;
+
+    if (!text) {
+      return res.status(400).json({ error: 'text is required' });
+    }
+
+    try {
+      const audioData = await this.clovaTtsModelInstance.generateSpeech(text);
+      res.set('Content-Type', 'audio/mpeg');
+      res.send(audioData);
+    } catch (error) {
+      console.error('Error generating TTS:', error);
+      res.status(500).json({ error: 'Error generating TTS' });
     }
   }
 }

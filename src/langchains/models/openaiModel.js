@@ -1,7 +1,7 @@
 const { OpenAI } = require('openai');
-const { openaiApiKey, openaiModel } = require('../../config/langchainConfig');
+const { openai } = require('../../config/langchainConfig');
 
-const openaiClient = new OpenAI({ apiKey: openaiApiKey });
+const openaiClient = new OpenAI({ apiKey: openai.apiKey });
 
 class OpenAIModel {
   constructor() {
