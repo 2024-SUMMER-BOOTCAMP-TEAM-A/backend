@@ -15,6 +15,8 @@ app.use(cors()); // CORS 미들웨어 추가
 const personRoutes = require('./src/routes/personRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const aiRoutes = require('./src/routes/aiRoutes');
+const logRoutes = require('./src/routes/logRoutes');
+
 
 app.use(express.json());  // Middleware 설정 
 
@@ -118,6 +120,7 @@ const apiPrefix = '/api/v1';
 app.use(`${apiPrefix}/persons`, personRoutes);
 app.use(`${apiPrefix}/nicknames`, userRoutes);
 app.use(`/ai`, aiRoutes);
+app.use(`${apiPrefix}/logs`, logRoutes);
 
 // 스웨거 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
