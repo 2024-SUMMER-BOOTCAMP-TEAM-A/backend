@@ -1,9 +1,9 @@
-const personRepository = require('../repositories/personRepository');
+const personService = require('../service/personService');
 
 // 전체 조회
 async function getAllPersons(req, res) {
   try {
-    const persons = await personRepository.findAllPersons();
+    const persons = await personService.findAllPersons();
     res.json(persons);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -14,7 +14,7 @@ async function getAllPersons(req, res) {
 async function getPersonById(req, res) {
   const id = req.params.id;
   try {
-    const person = await personRepository.findPersonById(id);
+    const person = await personService.findPersonById(id);
     if (person) {
       res.json(person);
     } else {
