@@ -1,7 +1,14 @@
+require('dotenv').config();
 const { OpenAI } = require('openai');
 const { openai } = require('../../config/langchainConfig');
+const {Storage} = require('@google-cloud/storage');
+const fetch = require('node-fetch');
+const fs = require('fs');
+const path = require('path');
 
 const openaiClient = new OpenAI({ apiKey: openai.apiKey });
+const storage = new Storage();
+const bucketName = GCLOUD_STORAGE_BUCKET;
 
 class OpenAIModel {
   constructor() {
@@ -52,6 +59,7 @@ class OpenAIModel {
     if (!conversationHistory || !conversationHistory.length) {
       throw new Error('conversationHistory is required');
     }
+
     const conversationText = conversationHistory
       .map(entry => `${entry.role}: ${entry.content}`)
       .join('\n');
@@ -73,6 +81,55 @@ class OpenAIModel {
       throw error;
     }
   }
+
+  // 요약 토대로 이미지 생성
+  async generateImage(summary) {
+    if(!summary) {throw new Error('summary is required');}
+
+    const response = await openai.creatImage({
+      prompt: summary,
+      n: 1,
+      size: "1792x1024",
+    })
+
+    const imageUrl = response.data.data[0].url;
+    const imageResponse = await fetch(imageUrl);
+    const imageBuffer = await imageResponse.buffer();
+    return imageBuffer;
+  }
+
+  // 이미지 업로드
+  async uploadImageToGCS(buffer, fileName) {
+    const tempFilePath = path.join('/tmp', fileName);
+    fs.writeFileSync(tempFilePath, buffer);
+
+    await storage.bucket(bucketName).upload(tempFilePath, {
+      destination: fileName,
+    });
+
+    fs.unlinkSync(tempFilePath);
+    console.log(`Image uploaded to ${bucketName}/${fileName}`);
+
+    const publicUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`; // 이미지 링크 생성
+    return publicUrl;
+  }
+
+  //생성 + 업로드
+  async generateAndUploadImage(prompt) {
+    try {
+      const imageBuffer = await this.generateImage(prompt);
+      const fileName = `${Date.now()}-generated-image.png`;
+
+      const publicUrl = await this.uploadImageToGCS(imageBuffer, fileName);
+
+      console.log(`Generated and uploaded image for prompt: "${prompt}"`);
+    } catch (error) {
+      console.error('Error generating or uploading image:', error);
+      throw error;
+    }
+  }
+
+  //사용 : 링크 불러오기
 }
 
 module.exports = OpenAIModel;
