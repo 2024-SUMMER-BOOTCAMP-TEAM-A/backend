@@ -84,6 +84,7 @@ const PORT = 8000; // 포트 번호를 8000으로 명시
 
 // 데이터베이스 동기화 후 서버 시작
 (async () => {
+  console.log(mongoURI);
   await connectMongoDB();
   await connectRedis();
   await connectSequelize();
