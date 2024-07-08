@@ -1,4 +1,4 @@
-require('dotenv').config(); // .env 파일의 환경 변수를 로드
+require('dotenv').config();
 
 module.exports = {
   development: {
@@ -7,6 +7,13 @@ module.exports = {
     database: process.env.MYSQL_DATABASE,
     host: process.env.MYSQL_HOST,
     dialect: "mysql",
+    dialectOptions: {
+      charset: 'utf8mb4',
+    },
+    define: {
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+    },
     timezone: "+09:00",
   },
   test: {
@@ -15,6 +22,13 @@ module.exports = {
     database: process.env.MYSQL_DATABASE_TEST,
     host: process.env.MYSQL_HOST,
     dialect: "mysql",
+    dialectOptions: {
+      charset: 'utf8mb4',
+    },
+    define: {
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+    },
     timezone: "+09:00",
   },
   production: {
@@ -23,6 +37,13 @@ module.exports = {
     database: process.env.MYSQL_DATABASE,
     host: process.env.MYSQL_HOST,
     dialect: "mysql",
+    dialectOptions: {
+      charset: 'utf8mb4',
+    },
+    define: {
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+    },
     timezone: "+09:00",
   }
 };

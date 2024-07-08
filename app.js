@@ -23,12 +23,11 @@ app.use(express.json());  // Middleware 설정
 // const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
 const mongoURI = process.env.MONGO_DOCKER_URL; // 도커로 실행시 
 
-
 // MongoDB 연결 설정 함수
 async function connectMongoDB() {
   while (true) {
     try {
-      await mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
+      await mongoose.connect(mongoURI);
       console.log('MongoDB connected...');
       break;
     } catch (err) {
