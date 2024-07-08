@@ -3,7 +3,7 @@ const { Person } = require('../models');
 // 전체 조회
 async function findAllPersons() {
   const persons = await Person.findAll({
-    attributes: ['id', 'name']
+    attributes: ['name', 'title']
   });
   return persons;
 }
