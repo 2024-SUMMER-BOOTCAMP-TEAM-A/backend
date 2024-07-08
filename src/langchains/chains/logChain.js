@@ -3,18 +3,6 @@ const LangChainClient = require('../langchainClient')
 const ChatLog = require('../../models/chatLog');
 const SummaryLog = require('../../models/summaryLog');
 
-//로컬 실행시
-mongoose.connect(process.env.MONGO_LOCAL_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-// //도커 실행시
-// mongoose.connect(process.env.MONGO_DOCKER_URL, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// });
-
 class LogChain {
   //일지 생성 및 저장
   async createSummary(chatLogId) {
