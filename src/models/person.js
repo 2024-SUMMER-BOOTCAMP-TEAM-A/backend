@@ -25,6 +25,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(50),
       allowNull: false
     },
+    title: {
+      type: DataTypes.STRING(100),
+      allowNull: false // 필수 항목으로 설정
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
