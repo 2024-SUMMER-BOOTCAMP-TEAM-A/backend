@@ -20,8 +20,8 @@ const io = Socket(server); // socket.io 서버 생성
 app.use(cors()); // CORS 미들웨어 추가
 app.use(express.json());  // Middleware 설정 
 
-const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
-// const mongoURI = process.env.MONGO_DOCKER_URL; // 도커로 실행시 
+// const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
+const mongoURI = process.env.MONGO_DOCKER_URL; // 도커로 실행시 
 
 
 // MongoDB 연결 설정 함수
@@ -40,8 +40,8 @@ async function connectMongoDB() {
 
 // Redis 클라이언트 설정 함수
 const redisClient = createClient({
-  url: 'redis://localhost:6379' // 로컬로 실행시
-  // url: 'redis://redis:6379' // 노드 서버를 Docker Compose로 빌드할 경우
+  // url: 'redis://localhost:6379' // 로컬로 실행시
+  url: 'redis://redis:6379' // 노드 서버를 Docker Compose로 빌드할 경우
 });
 
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
@@ -61,8 +61,8 @@ async function connectRedis() {
 
 // Sequelize 연결 설정 함수
 const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USER, process.env.MYSQL_PASSWORD, {
-  // host: 'db',// 도커로 실행시
-  host: 'localhost', // 로컬로 실행시
+  host: 'db',// 도커로 실행시
+  // host: 'localhost', // 로컬로 실행시
   dialect: 'mysql',
 });
 
@@ -107,7 +107,7 @@ const logRoutes = require('./src/routes/logRoutes');
 
 // 라우트 설정
 app.use(`${apiPrefix}/persons`, personRoutes);
-app.use(`${apiPrefix}/nicknames`, userRoutes);
+app.use(`${apiPrefix}/users`, userRoutes);
 app.use(`/ai`, aiRoutes);
 app.use(`${apiPrefix}/logs`, logRoutes);
 
