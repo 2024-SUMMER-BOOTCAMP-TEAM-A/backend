@@ -78,18 +78,26 @@
         }
       }
     },
-    "/api/v1/nicknames/": {
+    "/api/v1/users/signup": {
       "post": {
         "tags": ["user"],
-        "description": "This endpoint allows you to create a new user by providing a nickname.",
+        "description": "This endpoint allows you to create a new user by signing up.",
         "parameters": [
           {
-            "name": "body",
+           "name": "body",
             "in": "body",
             "required": true,
             "schema": {
               "type": "object",
               "properties": {
+                "email": {
+                  "type": "string",
+                  "example": "example@example.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "password123"
+                },
                 "nickname": {
                   "type": "string",
                   "example": "PersonA"
@@ -104,6 +112,46 @@
           },
           "400": {
             "description": "잘못된 요청"
+          },
+          "500": {
+            "description": "내부 서버 오류"
+          }
+        }
+      }
+    },
+    "/api/v1/users/login": {
+      "post": {
+        "tags": ["user"],
+        "description": "This endpoint allows a user to log in.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "example": "example@example.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "password123"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공"
+          },
+          "400": {
+            "description": "잘못된 요청"
+          },
+          "401": {
+            "description": "인증 실패"
           },
           "500": {
             "description": "내부 서버 오류"

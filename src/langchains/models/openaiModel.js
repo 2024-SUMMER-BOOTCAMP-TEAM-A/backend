@@ -8,7 +8,7 @@ const path = require('path');
 
 const openaiClient = new OpenAI({ apiKey: openai.apiKey });
 const storage = new Storage();
-const bucketName = GCLOUD_STORAGE_BUCKET;
+const bucketName = process.env.GCLOUD_STORAGE_BUCKET;
 
 class OpenAIModel {
   constructor() {

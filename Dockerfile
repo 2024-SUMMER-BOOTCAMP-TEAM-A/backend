@@ -9,6 +9,8 @@ COPY . /backend
 # npm 패키지 설치
 RUN npm install
 RUN npm install -g nodemon
+RUN npm install jsonwebtoken
+RUN npm install @google-cloud/storage
 
 EXPOSE 8000
 
