@@ -20,8 +20,13 @@ async function isEmailTaken(email) {
   return !!user; // 유저가 존재하면 true 반환, 아니면 false 반환
 }
 
+async function findUserById(id) {
+  return await User.findByPk(id);
+}
+
 module.exports = {
   createUser,
   findUserByEmail,
-  isEmailTaken
+  isEmailTaken,
+  findUserById
 };
