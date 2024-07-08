@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const AIController = require('../controllers/aiController');
+
 const aiController = new AIController(); // 인스턴스 생성
 
 

@@ -71,6 +71,9 @@ class AIController {
       res.status(500).json({ error: 'Error generating TTS' });
     }
   }
+
+  //이미지 생성
+
 }
 
 module.exports = AIController;
