@@ -1,17 +1,32 @@
 require('dotenv').config();
 const { OpenAI } = require('openai');
-const openaiConfig = require('../config/openAiConfig');
+const fs = require('fs').promises;
 
 class OpenAIService {
-  constructor(config) {
+  constructor(config, promptFilePath) {
     this.config = config;
     this.openaiClient = new OpenAI({ apiKey: config.apiKey });
+    this.promptFilePath = promptFilePath;
     this.messages = [];
+  }
+
+  async loadInitialPrompt() {
+    try {
+      const promptContent = await fs.readFile(this.promptFilePath, 'utf8');
+      this.messages.push({ role: 'system', content: promptContent });
+    } catch (error) {
+      console.error('Error loading initial prompt:', error);
+      throw error;
+    }
   }
 
   async chat(userMessage) {
     if (!userMessage) {
       throw new Error('userMessage is required');
+    }
+
+    if (this.messages.length === 0) {
+      await this.loadInitialPrompt();
     }
 
     this.messages.push({ role: 'user', content: userMessage });
