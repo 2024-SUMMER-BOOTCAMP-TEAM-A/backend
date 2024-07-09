@@ -26,9 +26,16 @@ fs
       file.indexOf('.test.js') === -1
     );
   })
+  // .forEach(file => {
+  //   const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+  //   db[model.name] = model;
+  // });
   .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-    db[model.name] = model;
+    const model = require(path.join(__dirname, file));
+    if (typeof model === 'function') {
+      const sequelizeModel = model(sequelize, Sequelize.DataTypes);
+      db[sequelizeModel.name] = sequelizeModel;
+    }
   });
 
 Object.keys(db).forEach(modelName => {

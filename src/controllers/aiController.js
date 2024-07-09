@@ -1,24 +1,49 @@
-const langchainClient = require('../langchains/langchainClient');
-
-const OpenAIModel = require('../langchains/models/openaiModel');
-const ClovaTtsModel = require('../langchains/models/clovaModel'); 
+const { defaultService: openAIDefaultService, luckyService, simonService, mzService, twentyQService } = require('../models/openAiModel');
+const { defaultService: clovaDefaultService, luckyService: clovaLuckyService, simonService: clovaSimonService, mzService: clovaMzService, twentyQService: clovaTwentyQService } = require('../models/clovaModel');
 
 class AIController {
   constructor() {
-    this.openAIModelInstance = new OpenAIModel(); // 인스턴스 생성
-    this.clovaTtsModelInstance = new ClovaTtsModel(); // ClovaTtsModel 인스턴스 생성
+    this.openAIServices = {
+      default: openAIDefaultService,
+      lucky: luckyService,
+      simon: simonService,
+      mz: mzService,
+      twentyQ: twentyQService,
+    };
+
+    this.clovaServices = {
+      default: clovaDefaultService,
+      lucky: clovaLuckyService,
+      simon: clovaSimonService,
+      mz: clovaMzService,
+      twentyQ: clovaTwentyQService,
+    };
+
+    this.chat = this.chat.bind(this);
+    this.resetChat = this.resetChat.bind(this);
+    this.tts = this.tts.bind(this);
+  }
+
+  // 인격에 맞는 서비스 선택
+  getOpenAIService(persona) {
+    return this.openAIServices[persona] || this.openAIServices.default;
+  }
+
+  getClovaService(persona) {
+    return this.clovaServices[persona] || this.clovaServices.default;
   }
 
   // 대화 생성
   async chat(req, res) {
-    const { userMessage } = req.body;
+    const { userMessage, persona } = req.body;
 
     if (!userMessage) {
       return res.status(400).json({ error: 'userMessage is required' });
     }
 
     try {
-      const response = await this.openAIModelInstance.chat(userMessage);
+      const service = this.getOpenAIService(persona);
+      const response = await service.chat(userMessage);
       res.json({ response });
     } catch (error) {
       console.error('Error generating chat response:', error);
@@ -28,8 +53,11 @@ class AIController {
 
   // 대화 초기화
   async resetChat(req, res) {
+    const { persona } = req.body;
+
     try {
-      this.openAIModelInstance.resetChat();  // 대화 상태를 초기화합니다.
+      const service = this.getOpenAIService(persona);
+      service.resetChat();  // 대화 상태를 초기화합니다.
       res.status(200).json({ message: 'Chat session reset successfully' });
     } catch (error) {
       console.error('Error resetting chat session:', error);
@@ -37,33 +65,17 @@ class AIController {
     }
   }
 
-  // 대화 요약
-  async summarize(req, res) {
-    const { conversationHistory } = req.body;
-
-    if (!conversationHistory || !conversationHistory.length) {
-      return res.status(400).json({ error: 'conversationHistory is required' });
-    }
-
-    try {
-      const summary = await this.openAIModelInstance.summarize(conversationHistory);
-      res.json({ summary });
-    } catch (error) {
-      console.error('Error generating conversation summary:', error);
-      res.status(500).json({ error: 'Error generating conversation summary' });
-    }
-  }
-
   // tts
   async tts(req, res) {
-    const { text } = req.body;
+    const { text, persona } = req.body;
 
     if (!text) {
       return res.status(400).json({ error: 'text is required' });
     }
 
     try {
-      const audioData = await this.clovaTtsModelInstance.generateSpeech(text);
+      const service = this.getClovaService(persona);
+      const audioData = await service.generateSpeech(text);
       res.set('Content-Type', 'audio/mpeg');
       res.send(audioData);
     } catch (error) {
@@ -71,9 +83,6 @@ class AIController {
       res.status(500).json({ error: 'Error generating TTS' });
     }
   }
-
-  //이미지 생성
-
 }
 
-module.exports = AIController;
+module.exports = new AIController();
