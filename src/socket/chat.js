@@ -3,7 +3,9 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
-const aiController = new AIController(); // AIController 인스턴스 생성
+const { defaultService: openAIDefaultService, luckyService, simonService, mzService, twentyQService, summaryService } = require('../models/openAiModel');
+const { defaultService: clovaDefaultService, luckyService: clovaLuckyService, simonService: clovaSimonService, mzService: clovaMzService, twentyQService: clovaTwentyQService } = require('../models/clovaModel');
+
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
