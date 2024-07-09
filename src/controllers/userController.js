@@ -42,8 +42,24 @@ async function login(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+// 사용자 닉네임 반환 함수
+async function getNickname(req, res) {
+  try {
+    const token = req.header('Authorization').replace('Bearer ', '');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await userService.findUserById(decoded.userId);
 
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ nickname: user.nickname });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
 module.exports = {
   signup,
-  login
+  login,
+  getNickname
 };
