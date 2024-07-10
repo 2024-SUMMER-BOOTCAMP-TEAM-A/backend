@@ -10,6 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                cleanWs()
                 git branch: 'develop', url: "https://github.com/2024-SUMMER-BOOTCAMP-TEAM-A/backend.git"
             }
         }
@@ -65,6 +66,14 @@ pipeline {
     }
 
     post {
+        always {
+            cleanWs(cleanWhenNotBuilt: false,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true,
+                    patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
+                            [pattern: '.propsfile', type: 'EXCLUDE']])
+        }
         success {
             echo 'Build and deployment successful!'
         }
