@@ -1,18 +1,23 @@
-#이미지 빌드
+# Node.js 18-alpine 이미지 사용
 FROM node:18-alpine
+
+# bash 설치
+RUN apk add --no-cache bash
+
 # 작업 디렉토리 설정
 WORKDIR /backend
 
-# package.json과 package-lock.json 파일을 /usr/src/app 디렉토리로 복사
-COPY . /backend
+# package.json과 package-lock.json 파일을 작업 디렉토리로 복사
+COPY package*.json ./
 
 # npm 패키지 설치
 RUN npm install
-RUN npm install -g nodemon
-RUN npm install jsonwebtoken
-RUN npm install @google-cloud/storage
 
-EXPOSE 8000
+# 나머지 소스 파일을 작업 디렉토리로 복사
+COPY . .
 
-CMD ["npm", "start"]
-# CMD ["nodemon", "-L", "app.js"]
+# wait-for-it 스크립트를 컨테이너로 복사
+COPY wait-for-it.sh .
+
+# 데이터베이스가 준비될 때까지 대기한 후 마이그레이션 및 시딩 실행
+CMD ["./wait-for-it.sh", "db:3306", "--", "sh", "-c", "npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all && npm start"]

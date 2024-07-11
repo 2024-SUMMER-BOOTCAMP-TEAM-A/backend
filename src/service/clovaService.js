@@ -39,10 +39,8 @@ class ClovaTtsService {
         responseType: 'arraybuffer',
       });
 
-      const filePath = path.join(__dirname, `../${Date.now()}-tts.mp3`);
-      fs.writeFileSync(filePath, response.data);
-      console.log('TTS 파일 생성 완료:', filePath);
-      return filePath;
+      console.log('TTS 생성 및 저장');
+      return response.data; // Return the audio data directly
     } catch (error) {
       console.error('Error generating TTS:', error.response ? error.response.data : error.message);
       throw error;

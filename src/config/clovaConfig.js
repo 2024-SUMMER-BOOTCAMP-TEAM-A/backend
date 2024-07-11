@@ -26,8 +26,8 @@ module.exports = {
         apiKeySecret: process.env.CLOVA_API_KEY,
         speaker: 'nsangdo',
         volume: '1',
-        speed: '-1',
-        alpha: '-2',
+        speed: '-3',
+        alpha: '-5',
         format: 'mp3',
     },
     mz: {

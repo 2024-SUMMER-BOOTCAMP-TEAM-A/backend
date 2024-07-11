@@ -1,5 +1,5 @@
 const openaiConfig = require('../config/openAiConfig');
-const OpenAIService = require('../service/openaiService');
+const OpenAIService = require('../service/openAiService');
 const path = require('path');
 
 // 각 인격에 대한 OpenAIService 인스턴스 생성
