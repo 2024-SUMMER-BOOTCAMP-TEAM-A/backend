@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User, RefreshToken } = require('../models');
 const crypto = require('crypto');
 
 // 비밀번호 해시 함수
@@ -6,27 +6,55 @@ function hashPassword(password) {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
+// 비밀번호 검증 함수
+function verifyPassword(password, hashedPassword) {
+  const hashedInputPassword = hashPassword(password);
+  return hashedInputPassword === hashedPassword;
+}
+
 async function createUser(userData) {
-  userData.password = hashPassword(userData.password);
-  return await User.create(userData);
+  try {
+    userData.password = hashPassword(userData.password);
+    return await User.create(userData);
+  } catch (error) {
+    console.error('Error creating user:', error);
+    throw error;
+  }
 }
 
 async function findUserByEmail(email) {
-  return await User.findOne({ where: { email } });
+  try {
+    return await User.findOne({ where: { email } });
+  } catch (error) {
+    console.error('Error finding user by email:', error);
+    throw error;
+  }
 }
 
 async function isEmailTaken(email) {
-  const user = await User.findOne({ where: { email } });
-  return !!user; // 유저가 존재하면 true 반환, 아니면 false 반환
+  try {
+    const user = await User.findOne({ where: { email } });
+    return !!user; // 유저가 존재하면 true 반환, 아니면 false 반환
+  } catch (error) {
+    console.error('Error checking if email is taken:', error);
+    throw error;
+  }
 }
 
 async function findUserById(id) {
-  return await User.findByPk(id);
+  try {
+    return await User.findByPk(id);
+  } catch (error) {
+    console.error('Error finding user by ID:', error);
+    throw error;
+  }
 }
+
 
 module.exports = {
   createUser,
   findUserByEmail,
   isEmailTaken,
-  findUserById
+  findUserById,
+  verifyPassword
 };
