@@ -1,14 +1,17 @@
-const { ChatLog, SummaryLog } = require('../models/summaryModel');
+const { ChatLog, SummaryLog } = require('../models/chatLogModel.js');
+
 const OpenAIService = require('../service/openAiService'); // OpenAIService 불러오기
 const ImageService = require('../service/imageService'); // ImageService 불러오기
 
-class SummaryService {
-  constructor(openaiService, imageService) {
-    this.openaiService = openaiService;
-    this.imageService = imageService;
-  }
+// summaryService 인스턴스 생성
+const openaiConfig = require('../config/openAiConfig');
+const promptFilePath = require('../prompt/summaryPrompt.json'); // 일지 프롬프트
+const openaiService = new OpenAIService(openaiConfig.summary, promptFilePath);
+const imageService = new ImageService(openaiService);
+const summaryService = new SummaryService(openaiService, imageService);
 
-  // 요약 생성 및 저장
+class SummaryService {
+  // 일지 생성 및 저장
   async createSummary(chatLogId) {
     if (!chatLogId) {
       throw new Error('chatLogId is required');
@@ -20,7 +23,7 @@ class SummaryService {
     }
 
     const conversationHistory = chatLog.messages;
-    const summary = await this.openaiService.summarize(conversationHistory); // 요약본 생성
+    const summary = await openaiService.summarize(conversationHistory); // 요약본 생성
     const conclusion = "결론 내용"; // 필요한 경우 실제 결론 생성 로직 추가
 
     const summaryLog = new SummaryLog({
@@ -50,7 +53,7 @@ class SummaryService {
 
   // 이미지 생성 및 업로드
   async generateAndUploadImage(req, res) {
-    const { prompt, persona } = req.body;
+    const { prompt } = req.body;
 
     if (!prompt) {
       return res.status(400).json({ error: 'prompt is required' });
@@ -65,11 +68,5 @@ class SummaryService {
     }
   }
 }
-
-// summaryService 인스턴스 생성
-const openaiConfig = require('../config/openAiConfig');
-const openaiService = new OpenAIService(openaiConfig.summary);
-const imageService = new ImageService(openaiService);
-const summaryService = new SummaryService(openaiService, imageService);
 
 module.exports = summaryService;
