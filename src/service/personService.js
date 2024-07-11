@@ -17,7 +17,17 @@ async function findPersonById(id) {
   return person;
 }
 
+// id로 이름 조회
+async function findNameById(id) {
+  const person = await Person.findOne({
+    where: { id: id },
+    attributes: ['name']
+  });
+  return person;
+}
+
 module.exports = {
   findAllPersons,
-  findPersonById
+  findPersonById,
+  findNameById
 };
