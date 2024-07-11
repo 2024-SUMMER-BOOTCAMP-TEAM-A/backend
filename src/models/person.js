@@ -1,9 +1,10 @@
 'use strict';
 const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Person extends Model {
     static associate(models) {
-      // define association here
+      Person.belongsToMany(models.User, { through: models.UserSelection, foreignKey: 'person_id' });
     }
   }
   Person.init({
@@ -15,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     count: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      defaultValue: 0
     },
     content: {
       type: DataTypes.STRING(500),
@@ -27,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     title: {
       type: DataTypes.STRING(100),
-      allowNull: false // 필수 항목으로 설정
+      allowNull: false
     },
     created_at: {
       type: DataTypes.DATE,
