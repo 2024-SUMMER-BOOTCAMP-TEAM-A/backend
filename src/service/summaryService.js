@@ -12,7 +12,7 @@ const summaryService = new SummaryService(openaiService, imageService);
 
 class SummaryService {
   // 일지 생성 및 저장
-  async createSummary(chatLogId) {
+  async createSummary(chatLogId) { // chatLogId 받아오기
     if (!chatLogId) {
       throw new Error('chatLogId is required');
     }
@@ -22,14 +22,18 @@ class SummaryService {
       throw new Error('Chat log not found');
     }
 
+    const image = imageService.generateAndUploadImage(prompt); //url 반환
     const conversationHistory = chatLog.messages;
     const summary = await openaiService.summarize(conversationHistory); // 요약본 생성
-    const conclusion = "결론 내용"; // 필요한 경우 실제 결론 생성 로직 추가
+    const conclusion = await openaiService.createConclusion(summary); 
 
     const summaryLog = new SummaryLog({
       chatLogId: chatLogId,
+      user: chatLog.userName,
+      image: image,
       summary: summary,
       conclusion: conclusion,
+      persona: chatLog.persona,
       createdAt: new Date(),
     }); // 일지 생성
     await summaryLog.save(); // 일지 저장
@@ -37,7 +41,7 @@ class SummaryService {
     return summaryLog;
   }
 
-  // 요약본 출력
+  // 일지 출력
   async getSummary(chatLogId) {
     if (!chatLogId) {
       throw new Error('chatLogId is required');
@@ -49,23 +53,6 @@ class SummaryService {
     }
 
     return summaryLog;
-  }
-
-  // 이미지 생성 및 업로드
-  async generateAndUploadImage(req, res) {
-    const { prompt } = req.body;
-
-    if (!prompt) {
-      return res.status(400).json({ error: 'prompt is required' });
-    }
-
-    try {
-      const imageUrl = await this.imageService.generateAndUploadImage(prompt);
-      res.json({ imageUrl });
-    } catch (error) {
-      console.error('Error generating or uploading image:', error);
-      res.status(500).json({ error: 'Error generating or uploading image' });
-    }
   }
 }
 
