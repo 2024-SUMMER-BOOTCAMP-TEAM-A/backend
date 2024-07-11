@@ -19,9 +19,17 @@ class AIController {
       twentyQ: clovaTwentyQService,
     };
 
+    this.personaToClovaModel = {
+      '침착맨': 'twentyQ',
+      '장원영': 'lucky',
+      '쌈디': 'simon',
+      '맑눈광': 'mz',
+      'default': 'default'
+    };
+
     this.chat = this.chat.bind(this);
     this.resetChat = this.resetChat.bind(this);
-    this.tts = this.tts.bind(this);
+    // this.tts = this.tts.bind(this);
   }
 
   // 인격에 맞는 서비스 선택
@@ -30,7 +38,9 @@ class AIController {
   }
 
   getClovaService(persona) {
-    return this.clovaServices[persona] || this.clovaServices.default;
+    const clovaModel = this.personaToClovaModel[persona] || 'default';
+    console.log(`Fetching Clova service for persona: ${persona} (model: ${clovaModel})`);
+    return this.clovaServices[clovaModel] || this.clovaServices.default;
   }
 
   // 대화 생성
@@ -65,23 +75,11 @@ class AIController {
     }
   }
 
-  // tts
-  async tts(req, res) {
-    const { text, persona } = req.body;
 
-    if (!text) {
-      return res.status(400).json({ error: 'text is required' });
-    }
-
-    try {
-      const service = this.getClovaService(persona);
-      const audioData = await service.generateSpeech(text);
-      res.set('Content-Type', 'audio/mpeg');
-      res.send(audioData);
-    } catch (error) {
-      console.error('Error generating TTS:', error);
-      res.status(500).json({ error: 'Error generating TTS' });
-    }
+  async generateTTS(text, persona){
+    const serviced = this.getClovaService(persona);
+    const autioData = await serviced.generateSpeech(text);
+    return autioData;
   }
 }
 
