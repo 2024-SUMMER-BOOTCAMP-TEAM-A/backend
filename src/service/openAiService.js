@@ -10,6 +10,7 @@ class OpenAIService {
     this.messages = [];
   }
 
+  // 인격 불러오기
   async loadInitialPrompt() {
     try {
       const promptContent = await fs.readFile(this.promptFilePath, 'utf8');
@@ -20,6 +21,7 @@ class OpenAIService {
     }
   }
 
+  // 대화 기능
   async chat(userMessage) {
     if (!userMessage) {
       throw new Error('userMessage is required');
@@ -54,10 +56,12 @@ class OpenAIService {
     }
   }
 
+  // 대화 초기화
   resetChat() {
     this.messages = [];
   }
 
+  // 대화 요약
   async summarize(conversationHistory) {
     if (!conversationHistory || !conversationHistory.length) {
       throw new Error('conversationHistory is required');
@@ -81,6 +85,29 @@ class OpenAIService {
       return response.choices[0].message.content.trim();
     } catch (error) {
       console.error('Error generating summary:', error);
+      throw error;
+    }
+  }
+
+  // 결론 생성
+  async createConclusion(summarize) {
+    if(!summarize) {
+      throw new Error('summarize is required');
+    }
+
+    try {
+      const response = await this.openaiClient.chat.completions.create({
+        model: this.config.model,
+        messages: summarize,
+        max_tokens: this.config.maxTokens,
+        temperature: this.config.temperature,
+      });
+      if (!response || !response.choices || !response.choices[0].message.content) {
+        throw new Error('Invalid response from OpenAI API');
+      }
+      return response.choices[0].message.content.trim();
+    } catch (error) {
+      console.error('Error generating conclusion:', error);
       throw error;
     }
   }

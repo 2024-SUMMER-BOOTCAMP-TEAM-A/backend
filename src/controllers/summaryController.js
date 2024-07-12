@@ -1,13 +1,13 @@
-const { summaryService } = require('../models/openAiModel');
+const summaryService = require('../service/summaryService');
 
 class SummaryController {
   constructor() {
     this.summaryService = summaryService;
   }
 
-  // 일지 생성 및 저장
-  async createSummary(req, res) {
-    const { chatLogId } = req.body;
+  // 요약 및 저장
+  async createsaveSummary(req, res) {
+    const { chatLogId } = req.body; // 몽고DB에서 가져옴
 
     if (!chatLogId) {
       return res.status(400).json({ error: 'chatLogId is required' });
@@ -36,40 +36,6 @@ class SummaryController {
     } catch (error) {
       console.error('Error retrieving summary:', error);
       res.status(500).json({ error: 'Error retrieving summary' });
-    }
-  }
-
-  // 대화 요약
-  async summarize(req, res) {
-    const { conversationHistory } = req.body;
-
-    if (!conversationHistory || !conversationHistory.length) {
-      return res.status(400).json({ error: 'conversationHistory is required' });
-    }
-
-    try {
-      const summary = await this.summaryService.summarize(conversationHistory);
-      res.json({ summary });
-    } catch (error) {
-      console.error('Error generating conversation summary:', error);
-      res.status(500).json({ error: 'Error generating conversation summary' });
-    }
-  }
-
-  // 이미지 생성 및 업로드
-  async generateAndUploadImage(req, res) {
-    const { prompt } = req.body;
-
-    if (!prompt) {
-      return res.status(400).json({ error: 'prompt is required' });
-    }
-
-    try {
-      const imageUrl = await this.summaryService.generateAndUploadImage(prompt);
-      res.json({ imageUrl });
-    } catch (error) {
-      console.error('Error generating or uploading image:', error);
-      res.status(500).json({ error: 'Error generating or uploading image' });
     }
   }
 }

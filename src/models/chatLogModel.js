@@ -41,6 +41,14 @@ const summaryLogSchema = new mongoose.Schema({
     required: true,
     ref: 'ChatLog'
   },
+  user: {
+    type: String,
+    require: true,
+  },
+  image: {
+    type: String,
+    require: true,
+  },
   summary: {
     type: String,
     required: true, // 요약 내용
@@ -48,6 +56,10 @@ const summaryLogSchema = new mongoose.Schema({
   conclusion: {
     type: String,
     required: true, // 결론
+  },
+  persona: {
+    type: String,
+    require: true,
   },
   createdAt: {
     type: Date,
