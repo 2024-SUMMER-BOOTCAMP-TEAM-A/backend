@@ -1,10 +1,9 @@
-const { defaultService: openAIDefaultService, luckyService, simonService, mzService, twentyQService } = require('../models/openAiModel');
-const { defaultService: clovaDefaultService, luckyService: clovaLuckyService, simonService: clovaSimonService, mzService: clovaMzService, twentyQService: clovaTwentyQService } = require('../models/clovaModel');
+const { luckyService, simonService, mzService, twentyQService } = require('../models/openAiModel');
+const { luckyService: clovaLuckyService, simonService: clovaSimonService, mzService: clovaMzService, twentyQService: clovaTwentyQService } = require('../models/clovaModel');
 
 class AIController {
   constructor() {
     this.openAIServices = {
-      default: openAIDefaultService,
       lucky: luckyService,
       simon: simonService,
       mz: mzService,
@@ -12,7 +11,6 @@ class AIController {
     };
 
     this.clovaServices = {
-      default: clovaDefaultService,
       lucky: clovaLuckyService,
       simon: clovaSimonService,
       mz: clovaMzService,
@@ -23,8 +21,7 @@ class AIController {
       '침착맨': 'twentyQ',
       '장원영': 'lucky',
       '쌈디': 'simon',
-      '맑눈광': 'mz',
-      'default': 'default'
+      '맑눈광': 'mz'
     };
 
     this.chat = this.chat.bind(this);
@@ -34,13 +31,13 @@ class AIController {
 
   // 인격에 맞는 서비스 선택
   getOpenAIService(persona) {
-    return this.openAIServices[persona] || this.openAIServices.default;
+    return this.openAIServices[persona];
   }
 
   getClovaService(persona) {
-    const clovaModel = this.personaToClovaModel[persona] || 'default';
+    const clovaModel = this.personaToClovaModel[persona];
     console.log(`Fetching Clova service for persona: ${persona} (model: ${clovaModel})`);
-    return this.clovaServices[clovaModel] || this.clovaServices.default;
+    return this.clovaServices[clovaModel];
   }
 
   // 대화 생성

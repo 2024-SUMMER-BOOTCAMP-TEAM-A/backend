@@ -46,7 +46,7 @@ const summaryLogSchema = new mongoose.Schema({
     require: true,
   },
   image: {
-    type: Image,
+    type: String,
     require: true,
   },
   summary: {

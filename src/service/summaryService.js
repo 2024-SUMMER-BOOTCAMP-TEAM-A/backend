@@ -8,7 +8,7 @@ const openaiConfig = require('../config/openAiConfig');
 const promptFilePath = require('../prompt/summaryPrompt.json'); // 일지 프롬프트
 const openaiService = new OpenAIService(openaiConfig.summary, promptFilePath);
 const imageService = new ImageService(openaiService);
-const summaryService = new SummaryService(openaiService, imageService);
+
 
 class SummaryService {
   // 일지 생성 및 저장
@@ -56,4 +56,4 @@ class SummaryService {
   }
 }
 
-module.exports = summaryService;
+module.exports = SummaryService;

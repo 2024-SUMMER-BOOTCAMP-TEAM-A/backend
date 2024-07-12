@@ -1,6 +1,6 @@
 const AIController = require('../controllers/aiController');
 const userSelectionController = require('../controllers/userSelectionController');
-const {ChatLog} = require('../models/chatLogModel'); // ChatLog 모델을 임포트합니다.
+const {ChatLog} = require('../models/chatLogModel');
 
 module.exports = (io, redisClient) => {
   io.on('connection', (socket) => {
@@ -55,7 +55,7 @@ module.exports = (io, redisClient) => {
 
         // Express req, res 객체 모의
         const reqAI = {
-          body: { userMessage: msg.content }
+          body: { userMessage: msg.content, persona: persona }
         };
         console.log('gpt한테 보낼 메시지:', reqAI.body);
 
