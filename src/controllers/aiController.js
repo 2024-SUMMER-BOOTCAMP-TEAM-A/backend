@@ -26,12 +26,12 @@ class AIController {
 
     this.chat = this.chat.bind(this);
     this.resetChat = this.resetChat.bind(this);
-    // this.tts = this.tts.bind(this);
+    this.generateTTS = this.generateTTS.bind(this);
   }
 
   // 인격에 맞는 서비스 선택
   getOpenAIService(persona) {
-    return this.openAIServices[persona];
+    return this.openAIServices[this.personaToClovaModel[persona]];
   }
 
   getClovaService(persona) {
@@ -45,16 +45,20 @@ class AIController {
     const { userMessage, persona } = req.body;
 
     if (!userMessage) {
-      return res.status(400).json({ error: 'userMessage is required' });
+        return res.status(400).json({ error: 'userMessage is required' });
     }
 
     try {
-      const service = this.getOpenAIService(persona);
-      const response = await service.chat(userMessage);
-      res.json({ response });
+        const service = this.getOpenAIService(persona);
+        if (!service || typeof service.chat !== 'function') {
+            throw new Error('Chat service is not properly configured');
+        }
+
+        const response = await service.chat(userMessage);
+        res.json({ response });
     } catch (error) {
-      console.error('Error generating chat response:', error);
-      res.status(500).json({ error: 'Error generating chat response' });
+        console.error('Error generating chat response:', error);
+        res.status(500).json({ error: 'Error generating chat response' });
     }
   }
 
@@ -64,6 +68,9 @@ class AIController {
 
     try {
       const service = this.getOpenAIService(persona);
+      if (!service || typeof service.resetChat !== 'function') {
+          throw new Error('Reset service is not properly configured');
+      }
       service.resetChat();  // 대화 상태를 초기화합니다.
       res.status(200).json({ message: 'Chat session reset successfully' });
     } catch (error) {
@@ -72,11 +79,16 @@ class AIController {
     }
   }
 
-
+  // TTS 생성
   async generateTTS(text, persona){
-    const serviced = this.getClovaService(persona);
-    const autioData = await serviced.generateSpeech(text);
-    return autioData;
+    try {
+      const service = this.getClovaService(persona);
+      const audioData = await service.generateSpeech(text);
+      return audioData;
+    } catch (error) {
+      console.error('Error generating TTS:', error);
+      throw error;
+    }
   }
 }
 
