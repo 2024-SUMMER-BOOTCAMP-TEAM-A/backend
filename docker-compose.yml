@@ -39,33 +39,36 @@ services:
     networks:
       - app-network
 
-  mongodb:
-    image: mongo:latest
+  mongo:
+    container_name: mongo
+    image: mongo
     ports:
       - "27017:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-    volumes:
-      - mongodb:/data/db
     networks:
       - app-network
-    hostname: mongodb
+    volumes:
+      - mongodb:/data/db
+    command: ["mongod", "--auth"]
+    hostname: mongo
 
-  mongodb_insight:
+  mongo_express:
     image: mongo-express:latest
     container_name: mongo_insight
     depends_on:
-      - mongodb
+      - mongo
     ports:
-      - "8888:8081"
+      - "8081:8081"
     environment:
-      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_SERVER=mongo
       - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
       - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-      - ME_CONFIG_BASICAUTH_USERNAME=mongo
-      - ME_CONFIG_BASICAUTH_PASSWORD=1234
+      - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
     networks:
       - app-network
     hostname: mongo-express
@@ -89,7 +92,7 @@ services:
     depends_on:
       - db
       - redis
-      - mongodb
+      - mongo
     networks:
       - app-network
 
