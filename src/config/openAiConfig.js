@@ -33,7 +33,7 @@ module.exports = {
         temperature: 0.9,
     },
     image: {
-        model: 'dall-e-2',
+        model: 'dall-e-3',
         maxTokens: 4096,
         temperature: 0.8,
     }
