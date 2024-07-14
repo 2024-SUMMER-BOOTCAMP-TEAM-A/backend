@@ -31,6 +31,7 @@
       const messages = document.getElementById('messages');
       const endChatButton = document.getElementById('end-chat');
 
+
       const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcyMDk1Mzc2OCwiZXhwIjoxNzIwOTk2OTY4fQ.UySzv8d__NFbDXCRMH6Y4JHWqE7kntyCTlOLxNTcTag';  // 서버로부터 전달받은 JWT 토큰을 여기에 입력합니다.
       socket.emit('start chat', { token });
 

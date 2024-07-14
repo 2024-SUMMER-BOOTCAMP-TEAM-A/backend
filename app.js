@@ -27,7 +27,14 @@ const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
 async function connectMongoDB() {
   while (true) {
     try {
-      await mongoose.connect(mongoURI);
+      await mongoose.connect(mongoURI,{
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        authSource: 'admin',
+        user: process.env.MONGO_INITDB_ROOT_USERNAME,
+        pass: process.env.MONGO_INITDB_ROOT_PASSWORD
+      }
+      );
       console.log('MongoDB connected...');
       break;
     } catch (err) {
