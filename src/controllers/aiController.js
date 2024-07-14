@@ -1,5 +1,15 @@
 const { luckyService, simonService, mzService, twentyQService } = require('../models/openAiModel');
-const { luckyService: clovaLuckyService, simonService: clovaSimonService, mzService: clovaMzService, twentyQService: clovaTwentyQService } = require('../models/clovaModel');
+const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+const XI_API_KEY = process.env.ELEVENLABS_API_KEY;
+
+if (!XI_API_KEY) {
+  throw new Error("Missing ELEVENLABS_API_KEY in environment variables");
+}
 
 class AIController {
   constructor() {
@@ -10,14 +20,14 @@ class AIController {
       twentyQ: twentyQService,
     };
 
-    this.clovaServices = {
-      lucky: clovaLuckyService,
-      simon: clovaSimonService,
-      mz: clovaMzService,
-      twentyQ: clovaTwentyQService,
+    this.elevenLabsServices = {
+      lucky: "SVYiBDZxdMa07D9wrXTI",
+      simon: "YOUR_SIMON_VOICE_ID",
+      mz: "YOUR_MZ_VOICE_ID",
+      twentyQ: "YOUR_TWENTYQ_VOICE_ID",
     };
 
-    this.personaToClovaModel = {
+    this.personaToModel = {
       '침착맨': 'twentyQ',
       '장원영': 'lucky',
       '쌈디': 'simon',
@@ -31,13 +41,12 @@ class AIController {
 
   // 인격에 맞는 서비스 선택
   getOpenAIService(persona) {
-    return this.openAIServices[this.personaToClovaModel[persona]];
+    return this.openAIServices[this.personaToModel[persona]];
   }
 
-  getClovaService(persona) {
-    const clovaModel = this.personaToClovaModel[persona];
-    console.log(`Fetching Clova service for persona: ${persona} (model: ${clovaModel})`);
-    return this.clovaServices[clovaModel];
+  getVoiceId(persona) {
+    const model = this.personaToModel[persona];
+    return this.elevenLabsServices[model];
   }
 
   // 대화 생성
@@ -81,12 +90,35 @@ class AIController {
 
   // TTS 생성
   async generateTTS(text, persona){
+    const voiceId = this.getVoiceId(persona);
+    const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`;
+
+    const headers = {
+      'Accept': 'audio/mpeg',
+      'Content-Type': 'application/json',
+      'xi-api-key': XI_API_KEY
+    };
+
+    const data = {
+      text: text,
+      model_id: "eleven_multilingual_v2",
+      voice_settings: {
+        stability: 0.5,
+        similarity_boost: 0.75,
+        style: 0.0,
+        use_speaker_boost: true
+      }
+    };
+
     try {
-      const service = this.getClovaService(persona);
-      const audioData = await service.generateSpeech(text);
-      return audioData;
+      const response = await axios.post(url, data, {
+        headers: headers,
+        responseType: 'arraybuffer'
+      });
+
+      return response.data;
     } catch (error) {
-      console.error('Error generating TTS:', error);
+      console.error('Error during TTS process:', error.response ? error.response.data : error.message);
       throw error;
     }
   }
