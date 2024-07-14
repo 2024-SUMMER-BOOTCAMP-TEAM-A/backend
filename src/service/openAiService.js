@@ -70,7 +70,7 @@ class OpenAIService {
     const conversationText = conversationHistory
       .map(entry => `${entry.role}: ${entry.content}`)
       .join('\n');
-    const summaryPrompt = { role: 'system', content: `Please summarize the following conversation:\n\n${conversationText}` };
+    const summaryPrompt = { role: 'system', content: `대화의 주된 내용들을 요약해줘. 150자정도로. 대신 결론은 포함하지 마.:\n\n${conversationText}` };
 
     try {
       const response = await this.openaiClient.chat.completions.create({

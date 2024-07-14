@@ -22,9 +22,9 @@ class SummaryService {
       throw new Error('Chat log not found');
     }
 
-    const image = imageService.generateAndUploadImage(prompt); //url 반환
     const conversationHistory = chatLog.messages;
     const summary = await openaiService.summarize(conversationHistory); // 요약본 생성
+    const image = imageService.generateAndUploadImage(summary); //url 반환
     const conclusion = await openaiService.createConclusion(summary); 
 
     const summaryLog = new SummaryLog({
