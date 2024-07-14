@@ -1,10 +1,6 @@
 const summaryService = require('../service/summaryService');
 
 class SummaryController {
-  constructor() {
-    this.summaryService = summaryService;
-  }
-
   // 요약 및 저장
   async createsaveSummary(req, res) {
     const { chatLogId } = req.body; // 몽고DB에서 가져옴
@@ -14,7 +10,7 @@ class SummaryController {
     }
 
     try {
-      const summaryLog = await this.summaryService.createSummary(chatLogId);
+      const summaryLog = await summaryService.createSummary(chatLogId);
       res.json({ summaryLog });
     } catch (error) {
       console.error('Error generating and saving summary:', error);
@@ -31,7 +27,7 @@ class SummaryController {
     }
 
     try {
-      const summaryLog = await this.summaryService.getSummary(chatLogId);
+      const summaryLog = await summaryService.getSummary(chatLogId);
       res.json({ summaryLog });
     } catch (error) {
       console.error('Error retrieving summary:', error);
