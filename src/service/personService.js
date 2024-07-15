@@ -26,8 +26,23 @@ async function findNameById(id) {
   return person;
 }
 
+// count 값 기준으로 내림차순 정렬하여 조회
+async function findPersonsByCountDesc() {
+  try {
+    const persons = await Person.findAll({
+      attributes: ['name', 'count'],
+      order: [['count', 'DESC']]
+    });
+    return persons;
+  } catch (error) {
+    console.error('Error finding persons by count desc:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   findAllPersons,
   findPersonById,
-  findNameById
+  findNameById,
+  findPersonsByCountDesc
 };
