@@ -26,6 +26,12 @@ class SummaryService {
       throw new Error('ChatLog not found');
     }
 
+
+    const conversationHistory = chatLog.messages;
+    const summary = await openaiService.summarize(conversationHistory); // 요약본 생성
+    const image = imageService.generateAndUploadImage(summary); //url 반환
+    const conclusion = await openaiService.createConclusion(summary); 
+
     console.log(`Generating prompt for ChatLog with id: ${chatLogId}`);
     // 프롬프트 생성 및 이미지 생성
     const prompt = `Please summarize the following conversation:\n\n${chatLog.messages.map(msg => `${msg.sender}: ${msg.content}`).join('\n')}`;
@@ -42,6 +48,7 @@ class SummaryService {
     console.log('Generating conclusion from summary');
     const conclusion = await openaiService.createConclusion(summary); // 결론 생성
     console.log('Conclusion generated successfully:', conclusion);
+
 
     console.log('Creating SummaryLog object');
     // SummaryLog 객체 생성 및 저장
