@@ -10,7 +10,7 @@ function handleStreamingSpeech(io) {
         config: {
           encoding: 'LINEAR16',
           sampleRateHertz: 16000,
-          languageCode: 'en-US',
+          languageCode: 'ko-KR',
         },
         interimResults: false,
       })

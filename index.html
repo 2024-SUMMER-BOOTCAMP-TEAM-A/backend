@@ -33,7 +33,7 @@
       const endChatButton = document.getElementById('end-chat');
       const startSTTButton = document.getElementById('start-stt');
 
-      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTcyMDk1NDg2OCwiZXhwIjoxNzIwOTk4MDY4fQ.YoswfhP7Gj-ciUZAfVLM0z7BvZOqYEmdYvWx19bE48c';  // 서버로부터 전달받은 JWT 토큰을 여기에 입력합니다.
+      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcyMTAyNDI2NCwiZXhwIjoxNzIxMDY3NDY0fQ.f-Dzntnhp5xxFX5rMJtqFSQT6nGNv7j4_uNZBuSwTSM';  // 서버로부터 전달받은 JWT 토큰을 여기에 입력합니다.
 
       socket.emit('start chat', { token });
 
@@ -49,24 +49,24 @@
         socket.emit('end chat');
       });
 
-      startSttButton.addEventListener('click', () => {
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = 'en-US';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
+      startSTTButton.addEventListener('click', () => {
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'ko-KR';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
 
-      recognition.start();
+        recognition.start();
 
-      recognition.onresult = (event) => {
-        const speechResult = event.results[0][0].transcript;
-        console.log('Speech result: ', speechResult);
-        socket.emit('start stt', { message: speechResult, token });
-      };
+        recognition.onresult = (event) => {
+          const speechResult = event.results[0][0].transcript;
+          console.log('Speech result: ', speechResult);
+          socket.emit('start stt', { message: speechResult, token });
+        };
 
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error: ', event.error);
-      };
-    });
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error: ', event.error);
+        };
+      });
 
       socket.on('chat message', (msg) => {
         const item = document.createElement('li');
