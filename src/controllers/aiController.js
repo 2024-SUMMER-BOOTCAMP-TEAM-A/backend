@@ -1,15 +1,7 @@
 const { luckyService, simonService, mzService, twentyQService } = require('../models/openAiModel');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
-const dotenv = require('dotenv');
-
-dotenv.config();
-
-const XI_API_KEY = process.env.ELEVENLABS_API_KEY;
-
-if (!XI_API_KEY) {
-  throw new Error("Missing ELEVENLABS_API_KEY in environment variables");
-}
+const { XI_API_KEY, getVoiceId, getTTSSettings } = require('../models/ttsModel');
 
 class AIController {
   constructor() {
@@ -18,13 +10,6 @@ class AIController {
       simon: simonService,
       mz: mzService,
       twentyQ: twentyQService,
-    };
-
-    this.elevenLabsServices = {
-      lucky: "SVYiBDZxdMa07D9wrXTI",
-      simon: "YOUR_SIMON_VOICE_ID",
-      mz: "YOUR_MZ_VOICE_ID",
-      twentyQ: "YOUR_TWENTYQ_VOICE_ID",
     };
 
     this.personaToModel = {
@@ -39,17 +24,10 @@ class AIController {
     this.generateTTS = this.generateTTS.bind(this);
   }
 
-  // 인격에 맞는 서비스 선택
   getOpenAIService(persona) {
     return this.openAIServices[this.personaToModel[persona]];
   }
 
-  getVoiceId(persona) {
-    const model = this.personaToModel[persona];
-    return this.elevenLabsServices[model];
-  }
-
-  // 대화 생성
   async chat(req, res) {
     const { userMessage, persona } = req.body;
 
@@ -71,7 +49,6 @@ class AIController {
     }
   }
 
-  // 대화 초기화
   async resetChat(req, res) {
     const { persona } = req.body;
 
@@ -80,7 +57,7 @@ class AIController {
       if (!service || typeof service.resetChat !== 'function') {
           throw new Error('Reset service is not properly configured');
       }
-      service.resetChat();  // 대화 상태를 초기화합니다.
+      service.resetChat();
       res.status(200).json({ message: 'Chat session reset successfully' });
     } catch (error) {
       console.error('Error resetting chat session:', error);
@@ -88,9 +65,9 @@ class AIController {
     }
   }
 
-  // TTS 생성
   async generateTTS(text, persona){
-    const voiceId = this.getVoiceId(persona);
+    const voiceId = getVoiceId(persona);
+    const settings = getTTSSettings(persona);
     const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`;
 
     const headers = {
@@ -102,12 +79,7 @@ class AIController {
     const data = {
       text: text,
       model_id: "eleven_multilingual_v2",
-      voice_settings: {
-        stability: 0.5,
-        similarity_boost: 0.75,
-        style: 0.0,
-        use_speaker_boost: true
-      }
+      voice_settings: settings
     };
 
     try {

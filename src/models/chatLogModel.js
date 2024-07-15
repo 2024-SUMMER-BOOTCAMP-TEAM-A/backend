@@ -43,11 +43,11 @@ const summaryLogSchema = new mongoose.Schema({
   },
   user: {
     type: String,
-    require: true,
+    required: true,
   },
   image: {
     type: String,
-    require: true,
+    required: true,
   },
   summary: {
     type: String,
@@ -59,7 +59,7 @@ const summaryLogSchema = new mongoose.Schema({
   },
   persona: {
     type: String,
-    require: true,
+    required: true,
   },
   createdAt: {
     type: Date,

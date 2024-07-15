@@ -96,7 +96,7 @@ class OpenAIService {
     }
 
     try {
-      const response = await this.openaiClient.chat.completions.create({
+      const response = await this.openaiClient.createImage({
         model: this.config.model,
         messages: summarize,
         max_tokens: this.config.maxTokens,
@@ -111,6 +111,29 @@ class OpenAIService {
       throw error;
     }
   }
+
+  // // 이미지 생성
+  // async creatImage(conclusion) {
+  //   if(!conclusion) {
+  //     throw new Error('conclusion is required');
+  //   }
+
+  //   try {
+  //     const response = await this.openaiClient.chat.completions.create({
+  //       model: this.config.model,
+  //       messages: conclusion,
+  //       max_tokens: this.config.maxTokens,
+  //       temperature: this.config.temperature,
+  //     });
+  //     if (!response || !response.choices || !response.choices[0].message.content) {
+  //       throw new Error('Invalid response from OpenAI API');
+  //     }
+  //     return response.choices[0].message.content.trim();
+  //   } catch (error) {
+  //     console.error('Error generating Image:', error);
+  //     throw error;
+  //   }
+  // }
 }
 
 module.exports = OpenAIService;
