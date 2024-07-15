@@ -16,12 +16,13 @@ const app = express(); // express 애플리케이션 생성
 const server = http.createServer(app); // http 서버 생성
 const Socket = require('socket.io'); // socket.io 패키지 로드
 const io = Socket(server); // socket.io 서버 생성
+const handleStreamingSpeech = require('./src/socket/speechSocket'); // STT WebSocket 설정 로드
 
 app.use(cors()); // CORS 미들웨어 추가
 app.use(express.json());  // Middleware 설정 
 
-const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
-// const mongoURI = process.env.MONGO_DOCKER_URL; // 도커로 실행시 
+// const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
+const mongoURI = process.env.MONGO_DOCKER_URL; // 도커로 실행시 
 
 // MongoDB 연결 설정 함수
 async function connectMongoDB() {
@@ -46,8 +47,8 @@ async function connectMongoDB() {
 
 // Redis 클라이언트 설정 함수
 const redisClient = createClient({
-  url: 'redis://localhost:6379' // 로컬로 실행시
-  // url: 'redis://redis:6379' // 노드 서버를 Docker Compose로 빌드할 경우
+  // url: 'redis://localhost:6379' // 로컬로 실행시
+  url: 'redis://redis:6379' // 노드 서버를 Docker Compose로 빌드할 경우
 });
 
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
@@ -67,8 +68,8 @@ async function connectRedis() {
 
 // Sequelize 연결 설정 함수
 const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USER, process.env.MYSQL_PASSWORD, {
-  // host: 'db',// 도커로 실행시
-  host: 'localhost', // 로컬로 실행시
+  host: 'db',// 도커로 실행시
+  // host: 'localhost', // 로컬로 실행시
   dialect: 'mysql',
 });
 
@@ -122,10 +123,55 @@ app.use(`${apiPrefix}/userSelections`, userSelectionRoutes);
 // 스웨거 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// 소켓 
+// index.html 파일을 제공하기 위한 설정
+app.use(express.static(path.join(__dirname, '.'))); // 현재 디렉토리의 루트 폴더를 정적 파일로 설정
+
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
+
+// WebSocket을 사용한 실시간 STT 기능 추가
+handleStreamingSpeech(io);
+
+// 소켓 설정
+io.on('connection', (socket) => {
+  console.log('a user connected');
+
+  socket.on('chat message', (data) => {
+    console.log('Chat message received:', data);
+
+    // 채팅 데이터를 처리하는 로직을 여기에 추가합니다.
+    const response = { message: "Chat message processed successfully." };
+    
+    // 클라이언트로 응답을 전송합니다.
+    socket.emit('chat message', { sender: 'Server', message: response.message });
+  });
+
+  socket.on('end chat', () => {
+    console.log('Chat ended by client');
+    socket.emit('chat ended');
+  });
+
+  socket.on('start stt', (data) => {
+    console.log('STT message received:', data);
+
+    // STT 데이터를 처리하는 로직을 여기에 추가합니다.
+    const response = { message: "STT message processed successfully." };
+    
+    // 클라이언트로 응답을 전송합니다.
+    socket.emit('stt response', response);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
+
+
+// 소켓 
+// app.get('/', (req, res) => {
+//   res.sendFile(__dirname + '/index.html');
+// });
 
 require('./src/socket/chat')(io, redisClient);
 

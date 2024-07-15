@@ -1,15 +1,32 @@
+require('dotenv').config();
 const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
 const { Storage } = require('@google-cloud/storage');
-const openaiConfig = require('../config/openAiConfig');
-
-const storage = new Storage();
+const openaiService = require('../service/openAiService');
+const storage = new Storage({
+  credentials: {
+    type: process.env.GCP_TYPE,
+    project_id: process.env.GCP_PROJECT_ID,
+    private_key_id: process.env.GCP_PRIVATE_KEY_ID,
+    private_key: process.env.GCP_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    client_email: process.env.GCP_CLIENT_EMAIL,
+    client_id: process.env.GCP_CLIENT_ID,
+    auth_uri: process.env.GCP_AUTH_URI,
+    token_uri: process.env.GCP_TOKEN_URI,
+    auth_provider_x509_cert_url: process.env.GCP_AUTH_PROVIDER_X509_CERT_URL,
+    client_x509_cert_url: process.env.GCP_CLIENT_X509_CERT_URL,
+    universe_domain: process.env.GCP_UNIVERSE_DOMAIN
+  },
+});
 const bucketName = process.env.GCLOUD_STORAGE_BUCKET;
+const openai = require('../config/openAiConfig');
 
 class ImageService {
-  constructor(openaiService) {
-    this.openaiService = openaiService;
+  constructor(config, path) {
+    this.config = config;
+    this.path = path;
+    this.openaiClient = new openaiService({ apiKey: config.apiKey }).openaiClient;
   }
 
   async generateImage(prompt) {

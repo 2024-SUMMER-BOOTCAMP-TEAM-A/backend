@@ -20,6 +20,7 @@
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
       <button id="end-chat" type="button">End Chat</button>
+      <button id="start-stt" type="button">Start STT</button>
     </form>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -30,6 +31,7 @@
       const input = document.getElementById('input');
       const messages = document.getElementById('messages');
       const endChatButton = document.getElementById('end-chat');
+      const startSTTButton = document.getElementById('start-stt');
 
       const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTcyMDk1NDg2OCwiZXhwIjoxNzIwOTk4MDY4fQ.YoswfhP7Gj-ciUZAfVLM0z7BvZOqYEmdYvWx19bE48c';  // 서버로부터 전달받은 JWT 토큰을 여기에 입력합니다.
 
@@ -46,6 +48,25 @@
       endChatButton.addEventListener('click', () => {
         socket.emit('end chat');
       });
+
+      startSttButton.addEventListener('click', () => {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.start();
+
+      recognition.onresult = (event) => {
+        const speechResult = event.results[0][0].transcript;
+        console.log('Speech result: ', speechResult);
+        socket.emit('start stt', { message: speechResult, token });
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error: ', event.error);
+      };
+    });
 
       socket.on('chat message', (msg) => {
         const item = document.createElement('li');
