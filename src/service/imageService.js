@@ -20,12 +20,16 @@ const storage = new Storage({
   },
 });
 const bucketName = process.env.GCLOUD_STORAGE_BUCKET;
+const bucketName2 = process.env.GCLOUD_STORAGE_BUCKET2
+
 const openai = require('../config/openAiConfig');
+const imagePromprFilePath = require('../prompt/imagePrompt.json');
+
 
 class ImageService {
-  constructor(config, path) {
-    this.config = config;
-    this.path = path;
+  constructor() {
+    this.config = openai.image;
+    this.path = imagePromprFilePath;
     this.openaiClient = new openaiService({ apiKey: config.apiKey }).openaiClient;
   }
 
@@ -73,6 +77,29 @@ class ImageService {
       throw error;
     }
   }
+
+  async generateUploadUrl(fileName) {
+    if (!fileName) {
+      throw new Error('fileName is required');
+    }
+
+    try {
+      const file = bucket.file(`logs/${fileName}`);
+      
+      // 서명된 URL 생성
+      const [url] = await file.getSignedUrl({
+        version: 'v4',
+        action: 'write',
+        contentType: 'image/png',
+        expires: Date.now() + 15 * 60 * 1000, // 15분 동안 유효한 URL
+      });
+
+      return url;
+    } catch (error) {
+      console.error('Error generating upload URL:', error);
+      throw error;
+    }
+  }
 }
 
-module.exports = ImageService;
+module.exports = new ImageService();
