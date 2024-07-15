@@ -10,7 +10,35 @@ const db = require('./src/models'); // 데이터베이스 모델 로드
 const cors = require('cors'); // cors 패키지 로드
 const http = require('http'); // http 패키지 로드
 const path = require('path'); // path 패키지 로드
+const multer = require('multer'); // multer 패키지 로드
+
 const app = express(); // express 애플리케이션 생성
+
+// Multer 저장소 설정
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');  // 파일이 저장될 경로
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);  // 파일 확장자
+    const filename = `${Date.now()}${ext}`;  // 파일 이름 생성
+    cb(null, filename);  // 생성된 파일 이름으로 저장
+  }
+});
+
+// Multer 설정
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 },  // 최대 파일 크기 (5MB)
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type'));
+    }
+  }
+});
 
 // Socket.io 설정
 const server = http.createServer(app); // http 서버 생성
@@ -119,6 +147,15 @@ app.use(`${apiPrefix}/users`, userRoutes);
 app.use(`/ai`, aiRoutes);
 app.use(`${apiPrefix}/logs`, summaryRoutes);
 app.use(`${apiPrefix}/userSelections`, userSelectionRoutes);
+
+// Multer를 사용하는 파일 업로드 라우트
+app.post(`${apiPrefix}/logs/upload`, upload.single('file'), (req, res) => {
+  if (req.file) {
+    res.json({ success: true, url: `/uploads/${req.file.filename}` });
+  } else {
+    res.status(400).json({ success: false, message: 'No file uploaded' });
+  }
+});
 
 // 스웨거 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
