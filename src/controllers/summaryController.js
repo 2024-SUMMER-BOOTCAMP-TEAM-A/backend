@@ -1,4 +1,5 @@
 const summaryService = require('../service/summaryService');
+const imageService = require('../service/imageService');
 
 class SummaryController {
   // 요약 및 저장
@@ -42,6 +43,24 @@ class SummaryController {
     } catch (error) {
       console.error(`Error retrieving summary for summaryLogId ${summaryLogId}:`, error);
       res.status(500).json({ error: 'Error retrieving summary' });
+    }
+  }
+
+  // 클라이언트에 업로드 URL을 제공
+  async getUploadUrl(req, res) {
+    const { fileName } = req.query;
+
+    if (!fileName) {
+      return res.status(400).json({ error: 'fileName is required' });
+    }
+
+    try {
+      // UploadService를 통해 서명된 URL을 생성합니다.
+      const url = await imageService.generateUploadUrl(fileName);
+      res.json({ url });
+    } catch (error) {
+      console.error('Error generating upload URL:', error);
+      res.status(500).json({ error: 'Error generating upload URL' });
     }
   }
 }
