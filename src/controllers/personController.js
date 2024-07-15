@@ -40,9 +40,20 @@ async function getNameByID(req, res){
   }
 }
 
+// count 값 기준으로 내림차순 정렬하여 조회
+async function getPersonsByCountDesc(req, res) {
+  try {
+    const persons = await personService.findPersonsByCountDesc();
+    res.json(persons);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   getAllPersons,
   getPersonById,
-  getNameByID
+  getNameByID,
+  getPersonsByCountDesc
 };
 
