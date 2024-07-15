@@ -4,6 +4,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     console.log("Inserting seed data into 'person' table...");
     try {
+      await queryInterface.bulkDelete('person', null, {}); // 기존 데이터를 삭제
       await queryInterface.bulkInsert('person', [
         {
           id: 1,

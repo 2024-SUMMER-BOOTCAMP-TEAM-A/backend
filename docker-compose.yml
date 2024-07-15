@@ -73,28 +73,35 @@ services:
       - app-network
     hostname: mongo-express
 
-  # node:
-  #   container_name: node
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   environment:
-  #     - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-  #     - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-  #     - REDIS_URL=redis://redis:6379
-  #     - MYSQL_HOST=db
-  #     - MYSQL_DATABASE=${MYSQL_DATABASE}
-  #     - MYSQL_USER=${MYSQL_USER}
-  #     - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-  #   ports:
-  #     - '8000:8000'
-  #   depends_on:
-  #     - db
-  #     - redis
-  #     - mongo
-  #   networks:
-  #     - app-network
+  node:
+    container_name: node
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - REDIS_URL=redis://redis:6379
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - GOOGLE_APPLICATION_CREDENTIALS=credentials.json 
+      - GOOGLE_CLOUD_PROJECT=rare-bloom-416113 
+      - GCLOUD_STORAGE_BUCKET=logs_image
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+      - redis
+      - mongo
+    # volumes:
+    #  - .:/backend
+    #  - ./service-account-file.json:/backend/service-account-file.json
+    # entrypoint: ["sh", "-c", "./wait-for-it.sh db:3306 -- npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all && npm start"]
+    networks:
+      - app-network
 
 networks:
   app-network:
