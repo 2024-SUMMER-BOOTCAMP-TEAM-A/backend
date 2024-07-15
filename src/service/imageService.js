@@ -34,30 +34,28 @@ class ImageService {
       throw new Error('prompt is required');
     }
 
-    const response = await this.openaiService.openaiClient.images.create({
+    const response = await this.openaiClient.images.generate({
+      model: openai.image.model,
       prompt,
       n: 1,
-      size: "1792x1024",
+      size: "1024x1024",
     });
 
-    const imageUrl = response.data.data[0].url;
+    const imageUrl = response.data[0].url;
     const imageResponse = await fetch(imageUrl);
     const imageBuffer = await imageResponse.buffer();
     return imageBuffer;
   }
 
   async uploadImageToGCS(buffer, fileName) {
-    const tempFilePath = path.join('/tmp', fileName);
-    fs.writeFileSync(tempFilePath, buffer);
+    await storage.bucket(bucketName).file(fileName).save(buffer);
 
-    await storage.bucket(bucketName).upload(tempFilePath, {
-      destination: fileName,
-    });
-
-    fs.unlinkSync(tempFilePath);
     console.log(`Image uploaded to ${bucketName}/${fileName}`);
 
     const publicUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
+
+    console.log(`Image uploaded : ${publicUrl}`);
+
     return publicUrl;
   }
 
