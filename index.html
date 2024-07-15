@@ -1,97 +1,119 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Socket.IO chat</title>
     <style>
-      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
-      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
-      #input:focus { outline: none; }
-      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
-      #end-chat { background: red; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages > li { padding: 0.5rem 1rem; }
-      #messages > li:nth-child(odd) { background: #efefef; }
+        body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+        #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+        #input:focus { outline: none; }
+        #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+        #end-chat { background: red; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+        #start-stt { background: blue; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+        #messages { list-style-type: none; margin: 0; padding: 0; }
+        #messages > li { padding: 0.5rem 1rem; }
+        #messages > li:nth-child(odd) { background: #efefef; }
     </style>
-  </head>
-  <body>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-      <button id="end-chat" type="button">End Chat</button>
-      <button id="start-stt" type="button">Start STT</button>
-    </form>
+</head>
+<body>
+<ul id="messages"></ul>
+<form id="form" action="">
+    <input id="input" autocomplete="off" /><button>Send</button>
+    <button id="end-chat" type="button">End Chat</button>
+    <button id="start-stt" type="button">Start STT</button>
+</form>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      const socket = io();
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
 
-      const form = document.getElementById('form');
-      const input = document.getElementById('input');
-      const messages = document.getElementById('messages');
-      const endChatButton = document.getElementById('end-chat');
-      const startSTTButton = document.getElementById('start-stt');
+    const form = document.getElementById('form');
+    const input = document.getElementById('input');
+    const messages = document.getElementById('messages');
+    const endChatButton = document.getElementById('end-chat');
+    const startSTTButton = document.getElementById('start-stt');
 
-      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcyMDk1Mzc2OCwiZXhwIjoxNzIwOTk2OTY4fQ.UySzv8d__NFbDXCRMH6Y4JHWqE7kntyCTlOLxNTcTag';  // 서버로부터 전달받은 JWT 토큰을 여기에 입력합니다.
-      socket.emit('start chat', { token });
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjgsImlhdCI6MTcyMTAyNzgwMywiZXhwIjoxNzIxMDcxMDAzfQ.HSb-6j-JYaqWG4YwQ50asWCBk3DFCyZFp8AgN9x1Rkk';  // 서버로부터 전달받은 JWT 토큰을 여기에 입력합니다.
+    socket.emit('start chat', { token });
 
-      form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', (e) => {
         e.preventDefault();
         if (input.value) {
-          socket.emit('chat message', { content: input.value, token });
-          input.value = '';
+            socket.emit('chat message', { content: input.value, token, sender: 'You' });
+            input.value = '';
         }
-      });
+    });
 
-      endChatButton.addEventListener('click', () => {
+    endChatButton.addEventListener('click', () => {
         socket.emit('end chat');
-      });
+    });
 
-      startSTTButton.addEventListener('click', () => {
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'ko-KR';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
+    let mediaRecorder;
+    let audioStream;
+    let silenceTimer;
+    const silenceTimeout = 5000; // 5초 동안 침묵이 지속되면 스트림 종료
 
-        recognition.start();
+    startSTTButton.addEventListener('click', async () => {
+        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm' });
 
-        recognition.onresult = (event) => {
-          const speechResult = event.results[0][0].transcript;
-          console.log('Speech result: ', speechResult);
-          socket.emit('start stt', { message: speechResult, token });
+        mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+                socket.emit('audio message', event.data);
+            }
         };
 
-        recognition.onerror = (event) => {
-          console.error('Speech recognition error: ', event.error);
+        mediaRecorder.onstop = () => {
+            clearTimeout(silenceTimer);
+            socket.emit('end stt');
         };
-      });
 
-      socket.on('chat message', (msg) => {
+        mediaRecorder.start(250); // 오디오 데이터를 250ms마다 수집
+
+        socket.emit('start stt');
+        resetSilenceTimer();
+    });
+
+    function resetSilenceTimer() {
+        clearTimeout(silenceTimer);
+        silenceTimer = setTimeout(() => {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+        }, silenceTimeout);
+    }
+
+    socket.on('chat message', (msg) => {
         const item = document.createElement('li');
         item.textContent = `${msg.sender}: ${msg.message}`;
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
-      });
+    });
 
-      socket.on('tts audio', (data) => {
+    socket.on('tts audio', (data) => {
         if (data.audio) {
-          const audio = new Audio(`data:audio/mpeg;base64,${data.audio}`);
-          audio.play();
+            const audio = new Audio(`data:audio/mpeg;base64,${data.audio}`);
+            audio.play();
         }
-      });
+    });
 
-      socket.on('chat log created', (data) => {
+    socket.on('chat log created', (data) => {
         if (data.code === 201) {
-          console.log('Chat log created:', data.data);
+            console.log('Chat log created:', data.data);
         } else {
-          console.error('Failed to create chat log:', data.data);
+            console.error('Failed to create chat log:', data.data);
         }
-      });
+    });
 
-      socket.on('error', (data) => {
+    socket.on('transcript', (data) => {
+        socket.emit('chat message', { content: data.message, sender: 'You' });
+        resetSilenceTimer();
+    });
+
+    socket.on('error', (data) => {
         console.error('Error:', data.message);
-      });
-    </script>
-  </body>
+    });
+</script>
+</body>
 </html>
