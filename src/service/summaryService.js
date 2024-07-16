@@ -5,7 +5,7 @@ const imageService = require('../service/imageService');
 // summaryService 인스턴스 생성
 const openaiConfig = require('../config/openAiConfig');
 const summaryPromptFilePath = require('../prompt/summaryPrompt.json'); // 요약 프롬프트
-const imagePromprFilePath = require('../prompt/imagePrompt.json');
+const imagePromprFilePath = require('../prompt/picturePrompt.json');
 const openaiService = new OpenAIService(openaiConfig.summary, summaryPromptFilePath);
 
 class SummaryService {
