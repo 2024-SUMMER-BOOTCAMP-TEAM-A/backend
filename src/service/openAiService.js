@@ -113,7 +113,7 @@ class OpenAIService {
   }
 
   // // 이미지 생성
-  // async creatImage(conclusion) {
+  // async creatImage(summary) {
   //   if(!conclusion) {
   //     throw new Error('conclusion is required');
   //   }
