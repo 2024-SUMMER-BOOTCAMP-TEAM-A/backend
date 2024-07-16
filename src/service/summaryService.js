@@ -1,12 +1,16 @@
 const { ChatLog, SummaryLog } = require('../models/chatLogModel.js');
 const OpenAIService = require('../service/openAiService');
-const imageService = require('../service/imageService');
+const ImageService = require('../service/imageService');
 
 // summaryService 인스턴스 생성
 const openaiConfig = require('../config/openAiConfig');
 const summaryPromptFilePath = require('../prompt/summaryPrompt.json'); // 요약 프롬프트
-const imagePromprFilePath = require('../prompt/picturePrompt.json');
-const openaiService = new OpenAIService(openaiConfig.summary, summaryPromptFilePath);
+const imagePromprFilePath = require('../prompt/picturePrompt.json'); //사진 프롬프트
+const solutionPromptFilePath = require('../prompt/solutionPrompt.json'); //해결책 프롬프트
+const summaryService = new OpenAIService(openaiConfig.summary, summaryPromptFilePath);
+const imageService = new ImageService(openaiConfig.image, imagePromprFilePath);
+const solutionService = new OpenAIService(openaiConfig.summary, solutionPromptFilePath);
+
 
 class SummaryService {
   // 일지 생성 및 저장
@@ -29,18 +33,16 @@ class SummaryService {
 
     console.log('Generating summary from prompt');
     // 대화 내용 요약 및 결론 생성
-    const summary = await openaiService.summarize(conversationHistory); // 요약본 생성
+    const summary = await summaryService.summarize(conversationHistory); // 요약본 생성
     console.log('Summary generated successfully:', summary);
 
-    console.log(`Generating prompt for ChatLog with id: ${chatLogId}`);
     // 프롬프트 생성 및 이미지 생성
-    const prompt = `내용 토대로 이미지 생성해줘. 150자 내외로, 해결책은 포함하지 마.:\n\n${chatLog.messages.map(msg => `${msg.sender}: ${msg.content}`).join('\n')}`;
     console.log('Generating image from prompt');
     const image = await imageService.generateAndUploadImage(summary); // URL 반환
     console.log('Image generated successfully:', image);
 
     console.log('Generating conclusion from summary');
-    const conclusion = await openaiService.createConclusion(summary); // 결론 생성
+    const conclusion = await solutionService.createConclusion(summary); // 결론 생성
     console.log('Conclusion generated successfully:', conclusion);
 
 
