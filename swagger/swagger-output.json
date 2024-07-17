@@ -21,18 +21,26 @@
       "description": "테스트 API"
     },
     {
-      "name": "ai",
-      "description": "AI 관련 API"
+      "name": "userSelection",
+      "description": "UserSelection 관련 API"
     }
   ],
   "schemes": [
     "http"
   ],
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Bearer JWT 토큰을 사용한 인증. 예시: \"Bearer {token}\""
+    }
+  },
   "paths": {
     "/": {
       "get": {
-        "tags": ["test"],
         "description": "",
+        "tags": ["test"],
         "responses": {
           "200": {
             "description": "성공"
@@ -42,8 +50,8 @@
     },
     "/api/v1/persons/": {
       "get": {
-        "tags": ["person"],
         "description": "",
+        "tags": ["person"],
         "responses": {
           "200": {
             "description": "성공"
@@ -56,8 +64,8 @@
     },
     "/api/v1/persons/{id}": {
       "get": {
-        "tags": ["person"],
         "description": "",
+        "tags": ["person"],
         "parameters": [
           {
             "name": "id",
@@ -79,10 +87,49 @@
         }
       }
     },
+    "/api/v1/persons/name/{id}": {
+      "get": {
+        "description": "",
+        "tags": ["person"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공"
+          },
+          "404": {
+            "description": "찾을 수 없음"
+          },
+          "500": {
+            "description": "내부 서버 오류"
+          }
+        }
+      }
+    },
+    "/api/v1/persons/records/counts": {
+      "get": {
+        "description": "",
+        "tags": ["person"],
+        "responses": {
+          "200": {
+            "description": "성공"
+          },
+          "500": {
+            "description": "내부 서버 오류"
+          }
+        }
+      }
+    },
     "/api/v1/users/signup": {
       "post": {
-        "tags": ["user"],
         "description": "",
+        "tags": ["user"],
         "parameters": [
           {
             "name": "body",
@@ -118,8 +165,8 @@
     },
     "/api/v1/users/login": {
       "post": {
-        "tags": ["user"],
         "description": "",
+        "tags": ["user"],
         "parameters": [
           {
             "name": "body",
@@ -152,8 +199,8 @@
     },
     "/api/v1/users/nickname": {
       "get": {
-        "tags": ["user"],
         "description": "",
+        "tags": ["user"],
         "parameters": [
           {
             "name": "Authorization",
@@ -162,22 +209,21 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "성공"
-          },
-          "404": {
-            "description": "찾을 수 없음"
-          },
-          "500": {
-            "description": "내부 서버 오류"
+          "default": {
+            "description": ""
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
     "/api/v1/users/refresh": {
       "post": {
-        "tags": ["user"],
         "description": "",
+        "tags": ["user"],
         "parameters": [
           {
             "name": "body",
@@ -202,13 +248,18 @@
           "500": {
             "description": "내부 서버 오류"
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
     "/ai/chat": {
       "post": {
-        "tags": ["ai"],
         "description": "",
+        "tags": ["test"],
         "parameters": [
           {
             "name": "body",
@@ -241,8 +292,8 @@
     },
     "/ai/reset": {
       "post": {
-        "tags": ["ai"],
         "description": "",
+        "tags": ["test"],
         "parameters": [
           {
             "name": "body",
@@ -260,40 +311,6 @@
         "responses": {
           "200": {
             "description": "성공"
-          },
-          "500": {
-            "description": "내부 서버 오류"
-          }
-        }
-      }
-    },
-    "/ai/tts": {
-      "post": {
-        "tags": ["ai"],
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "text": {
-                  "example": "any"
-                },
-                "persona": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "성공"
-          },
-          "400": {
-            "description": "잘못된 요청"
           },
           "500": {
             "description": "내부 서버 오류"
@@ -303,8 +320,8 @@
     },
     "/api/v1/logs/createSummary": {
       "post": {
-        "tags": ["ai"],
         "description": "",
+        "tags": ["test"],
         "parameters": [
           {
             "name": "body",
@@ -329,13 +346,18 @@
           "500": {
             "description": "내부 서버 오류"
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
     "/api/v1/logs/getSummary/{chatLogId}": {
       "get": {
-        "tags": ["ai"],
         "description": "",
+        "tags": ["test"],
         "parameters": [
           {
             "name": "chatLogId",
@@ -351,28 +373,29 @@
           "400": {
             "description": "잘못된 요청"
           },
+          "404": {
+            "description": "찾을 수 없음"
+          },
           "500": {
             "description": "내부 서버 오류"
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
-    "/api/v1/logs/summarize": {
-      "post": {
-        "tags": ["ai"],
+    "/api/v1/logs/getUpload": {
+      "get": {
         "description": "",
+        "tags": ["test"],
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "conversationHistory": {
-                  "example": "any"
-                }
-              }
-            }
+            "name": "fileName",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
@@ -385,13 +408,18 @@
           "500": {
             "description": "내부 서버 오류"
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
-    "/api/v1/logs/generate-image": {
+    "/api/v1/userSelections/": {
       "post": {
-        "tags": ["ai"],
         "description": "",
+        "tags": ["userSelection"],
         "parameters": [
           {
             "name": "body",
@@ -399,7 +427,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "prompt": {
+                "personId": {
                   "example": "any"
                 }
               }
@@ -407,16 +435,40 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "성공"
-          },
-          "400": {
-            "description": "잘못된 요청"
+          "201": {
+            "description": "작성됨"
           },
           "500": {
             "description": "내부 서버 오류"
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/userSelections/chatLogs": {
+      "post": {
+        "description": "",
+        "tags": ["userSelection"],
+        "responses": {
+          "201": {
+            "description": "작성됨"
+          },
+          "404": {
+            "description": "찾을 수 없음"
+          },
+          "500": {
+            "description": "내부 서버 오류"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     }
   }
