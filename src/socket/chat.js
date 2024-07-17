@@ -185,10 +185,15 @@ module.exports = (io, redisClient) => {
 
                 // 클라이언트에게 메시지 전송
                 socket.emit('chat message', { sender: msg.sender || nickname, message: msg.content });
+                
+                // Redis에서 전체 채팅 로그 가져오기
+                const messages = await redisClient.lRange(`chat:${socket.id}`, 0, -1);
+                const redisLogs = messages.map((msg) => JSON.parse(msg));
+                console.log('Redis logs:', redisLogs);
 
                 // Express req, res 객체 모의
                 const reqAI = {
-                    body: { userMessage: msg.content, persona: persona }
+                    body: { userMessage: msg.content, persona: persona, chatLog: redisLogs }
                 };
                 console.log('gpt한테 보낼 메시지:', reqAI.body);
 
