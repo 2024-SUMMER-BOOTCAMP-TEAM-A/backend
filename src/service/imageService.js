@@ -1,9 +1,11 @@
 require('dotenv').config();
 const fetch = require('node-fetch');
+const { Storage } = require('@google-cloud/storage');
+const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
-const { Storage } = require('@google-cloud/storage');
 const openaiService = require('../service/openAiService');
+
 const storage = new Storage({
   credentials: {
     type: process.env.GCP_TYPE,
@@ -19,56 +21,50 @@ const storage = new Storage({
     universe_domain: process.env.GCP_UNIVERSE_DOMAIN
   },
 });
-const bucketName = process.env.GCLOUD_STORAGE_BUCKET;
-const bucketName2 = process.env.GCLOUD_STORAGE_BUCKET2
 
+const bucketName = process.env.GCLOUD_STORAGE_BUCKET;
 const openai = require('../config/openAiConfig');
 
 class ImageService {
-  constructor(config, promptFilePath) {
+  constructor(config) {
     this.config = config;
-    this.path = promptFilePath;
     this.openaiClient = new openaiService({ apiKey: this.config.apiKey }).openaiClient;
   }
 
-  async generateImage(prompt) {
+  async generateAndUploadImage(prompt) {
     if (!prompt) {
       throw new Error('prompt is required');
     }
 
-    const response = await this.openaiClient.images.generate({
-      model: openai.image.model,
-      prompt,
-      n: 1,
-      size: "1024x1024",
-    });
-
-    const imageUrl = response.data[0].url;
-    const imageResponse = await fetch(imageUrl);
-    const imageBuffer = await imageResponse.buffer();
-    return imageBuffer;
-  }
-
-  async uploadImageToGCS(buffer, fileName) {
-    await storage.bucket(bucketName).file(fileName).save(buffer);
-
-    console.log(`Image uploaded to ${bucketName}/${fileName}`);
-
-    const publicUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
-
-    console.log(`Image uploaded : ${publicUrl}`);
-
-    return publicUrl;
-  }
-
-  async generateAndUploadImage(prompt) {
     try {
-      const imageBuffer = await this.generateImage(prompt);
-      const fileName = `${Date.now()}-generated-image.png`;
+      console.log("Generating image...");
+      const response = await this.openaiClient.images.generate({
+        model: openai.image.model,
+        prompt: prompt,
+        n: 1,
+        size: "1024x1024",
+      });
 
-      const publicUrl = await this.uploadImageToGCS(imageBuffer, fileName);
+      const imageUrl = response.data[0].url;
+      console.log(`Image generated, fetching from URL: ${imageUrl}`);
+
+      const imageResponse = await fetch(imageUrl);
+      const imageBuffer = await imageResponse.buffer();
+
+      console.log("Processing image...");
+      const processedImageBuffer = await sharp(imageBuffer)
+        .resize(700, 500)
+        .webp({ quality: 100 })
+        .toBuffer();
+
+      const fileName = `${Date.now()}-generated-image.webp`;
+      await storage.bucket(bucketName).file(fileName).save(processedImageBuffer);
+
+      const publicUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
 
       console.log(`Generated and uploaded image for prompt: "${prompt}"`);
+      console.log(`Image uploaded: ${publicUrl}`);
+
       return publicUrl;
     } catch (error) {
       console.error('Error generating or uploading image:', error);
@@ -76,27 +72,20 @@ class ImageService {
     }
   }
 
-  async generateUploadUrl(fileName) {
-    if (!fileName) {
-      throw new Error('fileName is required');
+  // JSON 파일 불러오는 함수 추가
+  static loadPicturePrompt() {
+    const picturePromptPath = path.join(__dirname, '..', 'prompt', 'picturePrompt.json');
+    if (fs.existsSync(picturePromptPath)) {
+      try {
+        const picturePromptData = fs.readFileSync(picturePromptPath, 'utf8');
+        return JSON.parse(picturePromptData);
+      } catch (jsonError) {
+        console.error('Error parsing picturePrompt.json:', jsonError);
+      }
+    } else {
+      console.error('picturePrompt.json file does not exist at path:', picturePromptPath);
     }
-
-    try {
-      const file = bucket.file(`logs/${fileName}`);
-      
-      // 서명된 URL 생성
-      const [url] = await file.getSignedUrl({
-        version: 'v4',
-        action: 'write',
-        contentType: 'image/png',
-        expires: Date.now() + 15 * 60 * 1000, // 15분 동안 유효한 URL
-      });
-
-      return url;
-    } catch (error) {
-      console.error('Error generating upload URL:', error);
-      throw error;
-    }
+    return null;
   }
 }
 

@@ -131,6 +131,7 @@ const AIController = require('../controllers/aiController');
 const userSelectionController = require('../controllers/userSelectionController');
 const { ChatLog } = require('../models/chatLogModel');
 const speechClient = require('../config/sttConfig'); // sttConfig 파일에서 speechClient 가져오기
+const ImageService = require('../service/imageService'); // 이미지 서비스 파일 경로를 지정하세요
 
 module.exports = (io, redisClient) => {
     io.on('connection', (socket) => {
@@ -292,6 +293,10 @@ module.exports = (io, redisClient) => {
         socket.on('end chat', async () => {
             console.log('end chat event received');
 
+            const imageService = new ImageService({
+                apiKey: process.env.OPENAI_API_KEY // 필요한 환경 변수를 설정하세요
+            });
+
             try {
                 const { nickname, persona } = socket.data;
 
@@ -311,12 +316,35 @@ module.exports = (io, redisClient) => {
                 });
                 // MongoDB에 저장
                 await chatLog.save();
-                console.log('Chat log saved mongoDB', chatLog);
+                console.log('Chat log saved to MongoDB:', chatLog);
                 // Redis에서 기록 삭제
                 await redisClient.del(`chat:${socket.id}`);
-                console.log('deleted from Redis');
+                console.log('Deleted from Redis');
+
+                // 안전한 프롬프트 생성
+                const prompt = parsedMessages.map(msg => msg.message).join(' ');
+                const safePrompt = prompt.replace(/[^a-zA-Z0-9가-힣\s]/g, '');
+
+                // 프롬프트 JSON 파일 로드
+                const picturePromptJson = ImageService.loadPicturePrompt();
+                if (picturePromptJson) {
+                    const combinedPrompt = `${safePrompt} ${JSON.stringify(picturePromptJson)}`;
+                    try {
+                        const imageUrl = await imageService.generateAndUploadImage(combinedPrompt);
+                        console.log('Image URL:', imageUrl);
+
+                        // 클라이언트에게 이미지 URL 전송
+                        socket.emit('image url', { url: imageUrl });
+                    } catch (error) {
+                        console.error('Error generating or uploading image:', error);
+                        socket.emit('error', { message: 'Error generating or uploading image', error: error.message });
+                    }
+                } else {
+                    console.error('Error loading picture prompt JSON');
+                }
             } catch (error) {
-                console.error('Error saving chat log to MongoDB:', error);
+                console.error('Error handling end chat event:', error);
+                socket.emit('error', { message: 'Error ending chat', error: error.message });
             }
 
             if (recognizeStream) {
