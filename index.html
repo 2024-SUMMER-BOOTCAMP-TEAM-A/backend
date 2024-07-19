@@ -34,7 +34,7 @@
     const endChatButton = document.getElementById('end-chat');
     const startSTTButton = document.getElementById('start-stt');
 
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjgsImlhdCI6MTcyMTAyNzgwMywiZXhwIjoxNzIxMDcxMDAzfQ.HSb-6j-JYaqWG4YwQ50asWCBk3DFCyZFp8AgN9x1Rkk';  // 서버로부터 전달받은 JWT 토큰을 여기에 입력합니다.
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJpYXQiOjE3MjEzMTYwMzksImV4cCI6MTcyMTQwMjQzOX0.a-Q_zfG5Omc1q6gZDQbY4cxYvJ-VALy2xkZBcrmd32E';  // 서버로부터 전달받은 JWT 토큰을 여기에 입력합니다.
     socket.emit('start chat', { token });
 
     form.addEventListener('submit', (e) => {
