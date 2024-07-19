@@ -91,14 +91,14 @@ class OpenAIService {
 
   // 결론 생성
   async createConclusion(summarize) {
-    if(!summarize) {
+    if (!summarize) {
       throw new Error('summarize is required');
     }
 
     try {
-      const response = await this.openaiClient.createImage({
+      const response = await this.openaiClient.chat.completions.create({
         model: this.config.model,
-        messages: summarize,
+        messages: [{ role: 'system', content: summarize }],
         max_tokens: this.config.maxTokens,
         temperature: this.config.temperature,
       });
@@ -112,28 +112,27 @@ class OpenAIService {
     }
   }
 
-  // // 이미지 생성
-  // async creatImage(summary) {
-  //   if(!conclusion) {
-  //     throw new Error('conclusion is required');
-  //   }
+  // 이미지 생성
+  async createImage(summary) {
+    if (!summary) {
+      throw new Error('summary is required');
+    }
 
-  //   try {
-  //     const response = await this.openaiClient.chat.completions.create({
-  //       model: this.config.model,
-  //       messages: conclusion,
-  //       max_tokens: this.config.maxTokens,
-  //       temperature: this.config.temperature,
-  //     });
-  //     if (!response || !response.choices || !response.choices[0].message.content) {
-  //       throw new Error('Invalid response from OpenAI API');
-  //     }
-  //     return response.choices[0].message.content.trim();
-  //   } catch (error) {
-  //     console.error('Error generating Image:', error);
-  //     throw error;
-  //   }
-  // }
+    try {
+      const response = await this.openaiClient.images.create({
+        prompt: summary,
+        n: 1,
+        size: "1024x1792",
+      });
+      if (!response || !response.data || !response.data[0].url) {
+        throw new Error('Invalid response from OpenAI API');
+      }
+      return response.data[0].url;
+    } catch (error) {
+      console.error('Error generating image:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = OpenAIService;

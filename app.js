@@ -128,10 +128,6 @@ app.use(`${apiPrefix}/userSelections`, userSelectionRoutes);
 // 스웨거 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// app.get('/', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'index.html'));
-// });
-
 // 채팅 관련 WebSocket 설정 추가
 chatSocket(io, redisClient);
 

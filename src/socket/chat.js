@@ -116,17 +116,13 @@ module.exports = (io, redisClient) => {
         socket.on('end chat', async () => {
             console.log('end chat event received');
 
-            const imageService = new ImageService({
-                apiKey: process.env.OPENAI_API_KEY // 필요한 환경 변수를 설정하세요
-            });
-
             try {
                 const { nickname, persona } = socket.data;
-
+        
                 // Redis에서 채팅 기록 가져오기
                 const messages = await redisClient.lRange(`chat:${socket.id}`, 0, -1);
                 const parsedMessages = messages.map((msg) => JSON.parse(msg));
-
+        
                 // MongoDB에 저장
                 const chatLog = new ChatLog({
                     userName: nickname,
@@ -140,43 +136,23 @@ module.exports = (io, redisClient) => {
                 // MongoDB에 저장
                 await chatLog.save();
                 console.log('Chat log saved to MongoDB:', chatLog);
+        
+                // MongoDB에 저장된 챗로그 아이디를 소켓을 통해 클라이언트로 전달
+                socket.emit('chat log saved', { chatLogId: chatLog._id });
+                console.log('Chat log ID sent to client:', chatLog._id);
+                
                 // Redis에서 기록 삭제
                 await redisClient.del(`chat:${socket.id}`);
-
-                console.log('Deleted from Redis');
-
-                // 안전한 프롬프트 생성
-                const prompt = parsedMessages.map(msg => msg.message).join(' ');
-                const safePrompt = prompt.replace(/[^a-zA-Z0-9가-힣\s]/g, '');
-
-                // 프롬프트 JSON 파일 로드
-                const picturePromptJson = ImageService.loadPicturePrompt();
-                if (picturePromptJson) {
-                    const combinedPrompt = `${safePrompt} ${JSON.stringify(picturePromptJson)}`;
-                    try {
-                        const imageUrl = await imageService.generateAndUploadImage(combinedPrompt);
-                        console.log('Image URL:', imageUrl);
-
-                        // 클라이언트에게 이미지 URL 전송
-                        socket.emit('image url', { url: imageUrl });
-                    } catch (error) {
-                        console.error('Error generating or uploading image:', error);
-                        socket.emit('error', { message: 'Error generating or uploading image', error: error.message });
-                    }
-                } else {
-                    console.error('Error loading picture prompt JSON');
-                }
-
+                console.log('Deleted chat log from Redis');
             } catch (error) {
-                console.error('Error handling end chat event:', error);
-                socket.emit('error', { message: 'Error ending chat', error: error.message });
+                console.error('Error saving chat log to MongoDB:', error);
             }
-
+        
             if (recognizeStream) {
                 recognizeStream.end();
                 recognizeStream = null;
             }
-        });
+        });        
 
         socket.on('disconnect', () => {
             console.log('user disconnected');

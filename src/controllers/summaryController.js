@@ -5,32 +5,31 @@ class SummaryController {
   // 요약 및 저장
   async createsaveSummary(req, res) {
     const { chatLogId } = req.body;
-
+  
     if (!chatLogId) {
       console.error('Error: Missing chatLogId in request body');
       return res.status(400).json({ error: 'chatLogId is required' });
     }
-
+  
     try {
       console.log(`Generating summary for chatLogId: ${chatLogId}`);
       const summaryLog = await summaryService.createSummary(chatLogId);
       console.log('Summary created successfully:', summaryLog);
-      res.json({ summaryLog });
+      res.json({ summaryLogId: summaryLog._id }); // 수정된 부분
     } catch (error) {
       console.error(`Error generating and saving summary for chatLogId ${chatLogId}:`, error);
       res.status(500).json({ error: 'Error generating and saving summary' });
     }
   }
-
-  // 요약본 출력
+  
   async getSummary(req, res) {
     const { summaryLogId } = req.params;
-
+  
     if (!summaryLogId) {
       console.error('Error: Missing summaryLogId in request parameters');
       return res.status(400).json({ error: 'summaryLogId is required' });
     }
-
+  
     try {
       console.log(`Retrieving summary for summaryLogId: ${summaryLogId}`);
       const summaryLog = await summaryService.getSummary(summaryLogId);
