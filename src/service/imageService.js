@@ -53,8 +53,8 @@ class ImageService {
 
       console.log("Processing image...");
       const processedImageBuffer = await sharp(imageBuffer)
-        .resize(700, 500)
-        .webp({ quality: 100 })
+        .resize(1792, 1024)
+        .webp({ quality: 70 })
         .toBuffer();
 
       const fileName = `${Date.now()}-generated-image.webp`;
