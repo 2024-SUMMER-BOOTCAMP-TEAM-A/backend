@@ -23,13 +23,11 @@ const bucketName = process.env.GCLOUD_STORAGE_BUCKET;
 const bucketName2 = process.env.GCLOUD_STORAGE_BUCKET2
 
 const openai = require('../config/openAiConfig');
-const imagePromprFilePath = require('../prompt/picturePrompt.json');
-
 
 class ImageService {
-  constructor() {
-    this.config = openai.image;
-    this.path = imagePromprFilePath;
+  constructor(config, promptFilePath) {
+    this.config = config;
+    this.path = promptFilePath;
     this.openaiClient = new openaiService({ apiKey: this.config.apiKey }).openaiClient;
   }
 
@@ -102,4 +100,4 @@ class ImageService {
   }
 }
 
-module.exports = new ImageService();
+module.exports = ImageService;
