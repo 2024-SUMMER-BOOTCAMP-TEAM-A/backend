@@ -13,10 +13,14 @@ const path = require('path'); // path 패키지 로드
 const app = express(); // express 애플리케이션 생성
 
 // Socket.io 설정
-const server = http.createServer(app); // http 서버 생성
-const Socket = require('socket.io'); // socket.io 패키지 로드
-const io = Socket(server); // socket.io 서버 생성
-const handleStreamingSpeech = require('./src/socket/speechSocket'); // STT WebSocket 설정 로드
+const server = http.createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000", 
+    methods: ["GET", "POST"]
+  }
+});
 const chatSocket = require('./src/socket/chat'); 
 
 app.use(cors()); // CORS 미들웨어 추가
@@ -124,15 +128,10 @@ app.use(`${apiPrefix}/userSelections`, userSelectionRoutes);
 // 스웨거 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// index.html 파일을 제공하기 위한 설정
-app.use(express.static(path.join(__dirname, '.'))); // 현재 디렉토리의 루트 폴더를 정적 파일로 설정
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// WebSocket을 사용한 실시간 STT 기능 추가
-handleStreamingSpeech(io);
+// app.get('/', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'index.html'));
+// });
 
 // 채팅 관련 WebSocket 설정 추가
 chatSocket(io, redisClient);
+

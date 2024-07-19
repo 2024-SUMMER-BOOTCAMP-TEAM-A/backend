@@ -21,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'user',
         key: 'id'
-      }
+      },
+      unique: false
     },
     person_id: {
       type: DataTypes.INTEGER,
@@ -29,7 +30,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'person',
         key: 'id'
-      }
+      },
+      unique: false
     },
     selected_at: {
       type: DataTypes.DATE,
