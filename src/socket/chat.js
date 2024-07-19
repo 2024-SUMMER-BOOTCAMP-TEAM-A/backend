@@ -2,7 +2,6 @@ const AIController = require('../controllers/aiController');
 const userSelectionController = require('../controllers/userSelectionController');
 const { ChatLog } = require('../models/chatLogModel');
 const speechClient = require('../config/sttConfig'); // sttConfig 파일에서 speechClient 가져오기
-const ImageService = require('../service/imageService'); // 이미지 서비스 파일 경로를 지정하세요
 
 module.exports = (io, redisClient) => {
     io.on('connection', (socket) => {
