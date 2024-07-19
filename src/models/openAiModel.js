@@ -9,6 +9,7 @@ const simonService = new OpenAIService(openaiConfig.simon, path.join(__dirname, 
 const mzService = new OpenAIService(openaiConfig.mz, path.join(__dirname, '../prompt/mzPrompt.json'));
 const twentyQService = new OpenAIService(openaiConfig.twentyQ, path.join(__dirname, '../prompt/twentyQPrompt.json'));
 const summaryService = new OpenAIService(openaiConfig.summary, path.join(__dirname, '../prompt/summaryPrompt.json'));
+const solutionService = new OpenAIService(openaiConfig.summary, path.join(__dirname, '../prompt/solutionPrompt.json'));
 
 module.exports = {
   // defaultService,
@@ -17,4 +18,5 @@ module.exports = {
   mzService,
   twentyQService,
   summaryService,
+  solutionService
 };
