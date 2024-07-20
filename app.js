@@ -27,7 +27,8 @@ app.use(cors()); // CORS 미들웨어 추가
 app.use(express.json());  // Middleware 설정 
 
 // const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
-const mongoURI = process.env.MONGO_DOCKER_URL; // 도커로 실행시 
+const mongoURI = 'mongodb://root:1234@mongo:27017/mydatabase?authSource=admin'; // 도커로 실행시 
+
 
 // MongoDB 연결 설정 함수
 async function connectMongoDB() {

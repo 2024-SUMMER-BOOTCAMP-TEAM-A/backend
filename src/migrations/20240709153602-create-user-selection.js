@@ -16,6 +16,7 @@ module.exports = {
           model: 'user',
           key: 'id'
         },
+        unique : false,
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
@@ -26,6 +27,7 @@ module.exports = {
           model: 'person',
           key: 'id'
         },
+        unique : false,
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
