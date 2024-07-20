@@ -73,7 +73,6 @@ services:
       - app-network
     hostname: mongo-express
 
-  # ELK
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
     container_name: elasticsearch
@@ -121,33 +120,47 @@ services:
       - elasticsearch
     restart: unless-stopped
 
-  # node:
-  #   container_name: node
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   environment:
-  #     - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-  #     - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-  #     - REDIS_URL=redis://redis:6379
-  #     - MYSQL_HOST=db
-  #     - MYSQL_DATABASE=${MYSQL_DATABASE}
-  #     - MYSQL_USER=${MYSQL_USER}
-  #     - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-  #     - GOOGLE_APPLICATION_CREDENTIALS=credentials.json 
-  #     - GOOGLE_CLOUD_PROJECT=rare-bloom-416113 
-  #     - GCLOUD_STORAGE_BUCKET=logs_image
-  #   ports:
-  #     - '8000:8000'
-  #   depends_on:
-  #     - db
-  #     - redis
-  #     - mongo
-  #   networks:
-  #     - app-network
-
-  
+  node:
+    container_name: node
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - REDIS_URL=redis://redis:6379
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
+      - GCLOUD_STORAGE_BUCKET=${GCLOUD_STORAGE_BUCKET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - CLOVA_API_KEY=${CLOVA_API_KEY}
+      - CLOVA_CLIENT_ID=${CLOVA_CLIENT_ID}
+      - JWT_SECRET=${JWT_SECRET}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - NODE_ENV=${NODE_ENV}
+      - TZ=${TZ}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - GCP_TYPE=${GCP_TYPE}
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      - GCP_PRIVATE_KEY_ID=${GCP_PRIVATE_KEY_ID}
+      - GCP_PRIVATE_KEY=${GCP_PRIVATE_KEY}
+      - GCP_CLIENT_EMAIL=${GCP_CLIENT_EMAIL}
+      - GCP_AUTH_URI=${GCP_AUTH_URI}
+      - GCP_TOKEN_URI=${GCP_TOKEN_URI}
+      - GCP_AUTH_PROVIDER_X509_CERT_URL=${GCP_AUTH_PROVIDER_X509_CERT_URL}
+      - GCP_CLIENT_X509_CERT_URL=${GCP_CLIENT_X509_CERT_URL}
+      - GCP_UNIVERSE_DOMAIN=${GCP_UNIVERSE_DOMAIN}
+      - MONGODB_DOCKER_URL=${MONGODB_DOCKER_URL}
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+      - redis
+      - mongo
 
 networks:
   app-network:

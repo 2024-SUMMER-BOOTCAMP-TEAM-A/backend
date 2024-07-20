@@ -60,7 +60,7 @@ class OpenAIService {
   resetChat() {
     this.messages = [];
   }
-
+  
   // 대화 요약
   async summarize(conversationHistory) {
     if (!conversationHistory || !conversationHistory.length) {
@@ -70,12 +70,22 @@ class OpenAIService {
     const conversationText = conversationHistory
       .map(entry => `${entry.role}: ${entry.content}`)
       .join('\n');
-    const summaryPrompt = { role: 'system', content: `대화의 주된 내용들을 요약해줘. 150자정도로. 대신 결론은 포함하지 마.:\n\n${conversationText}` };
 
     try {
+      // 프롬프트 파일 읽기
+      const summaryFilePrompt = await fs.readFile(this.promptFilePath, 'utf8');
+      
+      // 파일 프롬프트와 대화 내역 결합
+      const summaryMessages = [
+        { role: 'system', content: summaryFilePrompt },
+        { role: 'user', content: conversationText }
+      ];
+      
+      console.log('Summary prompt:', summaryMessages);
+
       const response = await this.openaiClient.chat.completions.create({
         model: this.config.model,
-        messages: [summaryPrompt],
+        messages: summaryMessages,
         max_tokens: this.config.maxTokens,
         temperature: this.config.temperature,
       });
@@ -96,9 +106,18 @@ class OpenAIService {
     }
 
     try {
+      const conclusionFilePrompt= await fs.readFile(this.promptFilePath, 'utf8');
+
+      const conclusionMessages = [
+        { role: 'system', content: conclusionFilePrompt },
+        { role: 'system', content: summarize }
+      ];
+
+      console.log('Summary prompt:', conclusionMessages);
+
       const response = await this.openaiClient.chat.completions.create({
         model: this.config.model,
-        messages: [{ role: 'system', content: summarize }],
+        messages: conclusionMessages,
         max_tokens: this.config.maxTokens,
         temperature: this.config.temperature,
       });
@@ -108,28 +127,6 @@ class OpenAIService {
       return response.choices[0].message.content.trim();
     } catch (error) {
       console.error('Error generating conclusion:', error);
-      throw error;
-    }
-  }
-
-  // 이미지 생성
-  async createImage(summary) {
-    if (!summary) {
-      throw new Error('summary is required');
-    }
-
-    try {
-      const response = await this.openaiClient.images.create({
-        prompt: summary,
-        n: 1,
-        size: "1024x1792",
-      });
-      if (!response || !response.data || !response.data[0].url) {
-        throw new Error('Invalid response from OpenAI API');
-      }
-      return response.data[0].url;
-    } catch (error) {
-      console.error('Error generating image:', error);
       throw error;
     }
   }

@@ -24,6 +24,7 @@ const storage = new Storage({
 
 const bucketName = process.env.GCLOUD_STORAGE_BUCKET;
 const openai = require('../config/openAiConfig');
+const picturePrompt = require('../prompt/picturePrompt.json');
 
 class ImageService {
   constructor(config) {
@@ -31,19 +32,22 @@ class ImageService {
     this.openaiClient = new openaiService({ apiKey: this.config.apiKey }).openaiClient;
   }
 
-  async generateAndUploadImage(prompt) {
-    if (!prompt) {
-      throw new Error('prompt is required');
+  async generateAndUploadImage(summary) {
+    if (!picturePrompt) {
+      throw new Error('Valid picturePrompt is required');
     }
-
     try {
       console.log("Generating image...");
       const response = await this.openaiClient.images.generate({
-        model: openai.image.model,
-        prompt: prompt,
+        model : openai.image.model,
+        prompt : `${summary} ${picturePrompt}`,
         n: 1,
-        size: "1024x1024",
+        size: "1792x1024",
       });
+      console.log(summary, picturePrompt);
+      if (!response.data || response.data.length === 0) {
+        throw new Error('No image URL returned from OpenAI');
+      }
 
       const imageUrl = response.data[0].url;
       console.log(`Image generated, fetching from URL: ${imageUrl}`);
@@ -51,9 +55,8 @@ class ImageService {
       const imageResponse = await fetch(imageUrl);
       const imageBuffer = await imageResponse.buffer();
 
-      console.log("Processing image...");
       const processedImageBuffer = await sharp(imageBuffer)
-        .resize(1792, 1024)
+        .resize(896, 512)
         .webp({ quality: 70 })
         .toBuffer();
 
@@ -62,30 +65,13 @@ class ImageService {
 
       const publicUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
 
-      console.log(`Generated and uploaded image for prompt: "${prompt}"`);
       console.log(`Image uploaded: ${publicUrl}`);
 
       return publicUrl;
     } catch (error) {
-      console.error('Error generating or uploading image:', error);
+      console.error('Error generating or uploading image:', error.message);
       throw error;
     }
-  }
-
-  // JSON 파일 불러오는 함수 추가
-  static loadPicturePrompt() {
-    const picturePromptPath = path.join(__dirname, '..', 'prompt', 'picturePrompt.json');
-    if (fs.existsSync(picturePromptPath)) {
-      try {
-        const picturePromptData = fs.readFileSync(picturePromptPath, 'utf8');
-        return JSON.parse(picturePromptData);
-      } catch (jsonError) {
-        console.error('Error parsing picturePrompt.json:', jsonError);
-      }
-    } else {
-      console.error('picturePrompt.json file does not exist at path:', picturePromptPath);
-    }
-    return null;
   }
 }
 
