@@ -21,3 +21,7 @@ RUN chmod +x /backend/wait-for-it.sh /backend/start.sh
 
 # 데이터베이스가 준비될 때까지 대기한 후 마이그레이션 및 시딩 실행
 CMD ["./wait-for-it.sh", "db:3306", "--", "/backend/start.sh"]
+
+# 포트 열어주기
+EXPOSE 9200
+EXPOSE 5601
