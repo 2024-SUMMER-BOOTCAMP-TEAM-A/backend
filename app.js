@@ -37,8 +37,8 @@ async function connectMongoDB() {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         authSource: 'admin',
-        user: process.env.MONGO_INITDB_ROOT_USERNAME,
-        pass: process.env.MONGO_INITDB_ROOT_PASSWORD
+        user: 'root',
+        pass: '1234'
       }
       );
       console.log('MongoDB connected...');
