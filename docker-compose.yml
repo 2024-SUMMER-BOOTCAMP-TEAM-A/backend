@@ -52,7 +52,7 @@ services:
     volumes:
       - mongodb:/data/db
     command: ["mongod", "--auth"]
-    hostname: mongo
+    hostname: mongodb
 
   mongo_express:
     image: mongo-express:latest
