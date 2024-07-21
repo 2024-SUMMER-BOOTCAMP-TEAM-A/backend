@@ -1,15 +1,10 @@
 const { ChatLog, SummaryLog } = require('../models/chatLogModel.js');
-const OpenAIService = require('../service/openAiService');
+const { summaryService, solutionService } = require('../models/openAiModel');
 const ImageService = require('../service/imageService');
 
 const openaiConfig = require('../config/openAiConfig');
-const summaryPromptFilePath = '../prompt/summaryPrompt.txt'; 
-const imagePromptFilePath = '../prompt/picturePrompt.txt'; 
-const solutionPromptFilePath = '../prompt/solutionPrompt.txt'; 
-
-const summaryService = new OpenAIService(openaiConfig.summary, summaryPromptFilePath);
+const imagePromptFilePath = '../prompt/picturePrompt.json'; 
 const imageService = new ImageService(openaiConfig.image, imagePromptFilePath);
-const solutionService = new OpenAIService(openaiConfig.summary, solutionPromptFilePath);
 
 class SummaryService {
   // 일지 생성 및 저장

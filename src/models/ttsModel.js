@@ -1,5 +1,4 @@
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 
 const XI_API_KEY = process.env.ELEVENLABS_API_KEY;
 
