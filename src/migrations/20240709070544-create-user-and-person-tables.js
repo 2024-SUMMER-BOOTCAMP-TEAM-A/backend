@@ -125,6 +125,13 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
+    }, {
+      indexes: [
+        {
+          unique: false,
+          fields: ['user_id', 'person_id']
+        }
+      ]
     });
 
     // 초기 데이터 삽입
