@@ -12,6 +12,12 @@ module.exports = (io, redisClient) => {
             console.log('start chat event received:', data);
 
             try {
+                // 소켓 데이터 초기화
+                socket.data.chatStarted = false;
+                socket.data.chatLogId = null;
+                socket.data.persona = null;
+                socket.data.nickname = null;
+
                 if (socket.data.chatStarted) {
                     console.log('Chat already started for this socket');
                     return;
