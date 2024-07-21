@@ -16,6 +16,7 @@ const app = express(); // express 애플리케이션 생성
 const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server, {
+  path: '/api/socket.io',
   cors: {
     origin: ["http://localhost:3000", "https://person-a.site"],
     methods: ["GET", "POST"]
