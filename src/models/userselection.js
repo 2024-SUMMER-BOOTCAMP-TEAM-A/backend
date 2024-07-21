@@ -21,8 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'user',
         key: 'id'
-      },
-      unique: false
+      }
     },
     person_id: {
       type: DataTypes.INTEGER,
@@ -30,8 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'person',
         key: 'id'
-      },
-      unique: false
+      }
     },
     selected_at: {
       type: DataTypes.DATE,
@@ -43,7 +41,13 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'UserSelection',
     tableName: 'userSelection',
     timestamps: false,
-    underscored: true
+    underscored: true,
+    indexes: [
+      {
+        unique: false,
+        fields: ['user_id', 'person_id']
+      }
+    ]
   });
   return UserSelection;
 };
