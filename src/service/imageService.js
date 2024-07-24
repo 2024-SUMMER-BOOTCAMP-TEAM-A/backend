@@ -40,7 +40,7 @@ class ImageService {
       console.log("Generating image...");
       const response = await this.openaiClient.images.generate({
         model : openai.image.model,
-        prompt : `${summary} ${picturePrompt}`,
+        prompt : `${picturePrompt}\n ${summary}`,
         n: 1,
         size: "1792x1024",
       });
