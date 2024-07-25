@@ -40,11 +40,11 @@ class ImageService {
       console.log("Generating image...");
       const response = await this.openaiClient.images.generate({
         model : openai.image.model,
-        prompt : `${picturePrompt}\n ${summary}`,
+        prompt : `When generating an image, be sure to observe the following conditions: Do not add text to the image. I want an illustration image, not contain text in the image. ${picturePrompt}, ${summary}`,
         n: 1,
+        quality: "standard",
         size: "1792x1024",
       });
-      console.log(summary, picturePrompt);
       if (!response.data || response.data.length === 0) {
         throw new Error('No image URL returned from OpenAI');
       }
