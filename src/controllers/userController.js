@@ -73,15 +73,13 @@ async function getUserId(req) {
 // 사용자 닉네임 반환 함수
 async function getNickname(req, res) {
   try {
-    const token = req.header('Authorization').replace('Bearer ', '');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await userService.findUserById(decoded.userId);
+    const nickname = await userService.findNicknameById(req);
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    if (!nickname) {
+      return res.status(404).json({ message: 'nickname not found' });
     }
 
-    return user.nickname;
+    return nickname;
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

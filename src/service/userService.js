@@ -50,11 +50,21 @@ async function findUserById(id) {
   }
 }
 
+async function findNicknameById(id) {
+  try {
+    const user = await User.findByPk(id);
+    return user.nickname;
+  } catch (error) {
+    console.error('Error finding nickname by ID:', error);
+    throw error;
+  }
+}
 
 module.exports = {
   createUser,
   findUserByEmail,
   isEmailTaken,
   findUserById,
-  verifyPassword
+  verifyPassword,
+  findNicknameById
 };
