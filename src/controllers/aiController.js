@@ -16,7 +16,7 @@ class AIController {
       '침착맨': 'twentyQ',
       '장원영': 'lucky',
       '쌈디': 'simon',
-      '김아영': 'mz'
+      'MZ': 'mz'
     };
 
     this.chat = this.chat.bind(this);
