@@ -73,52 +73,52 @@ services:
       - app-network
     hostname: mongo-express
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
-    container_name: elasticsearch
-    environment:
-      - discovery.type=single-node
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    ports:
-      - "9200:9200"
-    volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
-      - ./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-    networks:
-      - npage
-    restart: unless-stopped
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+  #   container_name: elasticsearch
+  #   environment:
+  #     - discovery.type=single-node
+  #     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+  #     - ES_JAVA_OPTS=-Xms512m -Xmx512m
+  #   ports:
+  #     - "9200:9200"
+  #   volumes:
+  #     - elasticsearch-data:/usr/share/elasticsearch/data
+  #     - ./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+  #   networks:
+  #     - npage
+  #   restart: unless-stopped
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.10.2
-    container_name: kibana
-    environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - SERVER_NAME=kibana
-    ports:
-      - "5601:5601"
-    volumes:
-      - ./elk/kibana/config:/usr/share/kibana/config
-    networks:
-      - npage
-    depends_on:
-      - elasticsearch
-    restart: unless-stopped
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:7.10.2
+  #   container_name: kibana
+  #   environment:
+  #     - ELASTICSEARCH_URL=http://elasticsearch:9200
+  #     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+  #     - SERVER_NAME=kibana
+  #   ports:
+  #     - "5601:5601"
+  #   volumes:
+  #     - ./elk/kibana/config:/usr/share/kibana/config
+  #   networks:
+  #     - npage
+  #   depends_on:
+  #     - elasticsearch
+  #   restart: unless-stopped
 
-  logstash:
-    image: docker.elastic.co/logstash/logstash:7.10.2
-    container_name: logstash
-    volumes:
-      - ./elk/logstash/config:/usr/share/logstash/config
-      - ./elk/logstash/pipeline:/usr/share/logstash/pipeline
-    ports:
-      - "5044:5044"
-    networks:
-      - npage
-    depends_on:
-      - elasticsearch
-    restart: unless-stopped
+  # logstash:
+  #   image: docker.elastic.co/logstash/logstash:7.10.2
+  #   container_name: logstash
+  #   volumes:
+  #     - ./elk/logstash/config:/usr/share/logstash/config
+  #     - ./elk/logstash/pipeline:/usr/share/logstash/pipeline
+  #   ports:
+  #     - "5044:5044"
+  #   networks:
+  #     - npage
+  #   depends_on:
+  #     - elasticsearch
+  #   restart: unless-stopped
 
   node:
     container_name: node
@@ -161,14 +161,13 @@ services:
       - db
       - redis
       - mongo
-
+    networks:
+      - app-network
+    
 networks:
   app-network:
-    driver: bridge
-  npage:
     driver: bridge
 
 volumes:
   db_data:
   mongodb:
-  elasticsearch-data:

@@ -23,10 +23,7 @@ async function createChatLog(req, res) {
     console.log('Starting createChatLog...');
 
     const userId = await userController.getUserId(req);
-    console.log('Retrieved userId:', userId);
-
-    const nickname = await userController.getNickname(req);
-    console.log('Retrieved nickname:', nickname);
+    const nickname = await userController.getNickname(userId);
 
     const userSelection = await UserSelection.findOne({
       where: { user_id: userId },
