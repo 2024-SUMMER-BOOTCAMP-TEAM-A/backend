@@ -16,11 +16,7 @@ class AIController {
       '침착맨': 'twentyQ',
       '장원영': 'lucky',
       '쌈디': 'simon',
-<<<<<<< Updated upstream
-      '맑눈광': 'mz'
-=======
       '김아영': 'mz'
->>>>>>> Stashed changes
     };
 
     this.chat = this.chat.bind(this);
