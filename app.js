@@ -47,6 +47,10 @@ const chatSocket = require('./src/socket/chat');
 // const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
 const mongoURI = process.env.MONGODB_DOCKER_URL;   
 
+app.use(cors()); // CORS 미들웨어 추가
+app.use(express.json());  // Middleware 설정 
+
+
 // MongoDB 연결 설정 함수
 async function connectMongoDB() {
   while (true) {
@@ -148,4 +152,3 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // 채팅 관련 WebSocket 설정 추가
 chatSocket(io, redisClient);
-
