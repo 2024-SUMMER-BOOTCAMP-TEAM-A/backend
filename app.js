@@ -45,7 +45,7 @@ const io = new Server(server, {
 const chatSocket = require('./src/socket/chat'); 
 
 // const mongoURI = process.env.MONGO_LOCAL_URL; // 로컬로 실행시
-const mongoURI = process.env.MONGODB_DOCKER_URL; 
+const mongoURI = process.env.MONGODB_DOCKER_URL;   
 
 // MongoDB 연결 설정 함수
 async function connectMongoDB() {
@@ -69,7 +69,7 @@ async function connectMongoDB() {
 }
 
 // Redis 클라이언트 설정 함수
-const redisClient = createClient({
+const redisClient = createClient({  
   // url: 'redis://localhost:6379' // 로컬로 실행시
   url: 'redis://redis:6379' // 노드 서버를 Docker Compose로 빌드할 경우
 });
@@ -91,7 +91,7 @@ async function connectRedis() {
 
 // Sequelize 연결 설정 함수
 const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USER, process.env.MYSQL_PASSWORD, {
-  host: 'db',// 도커로 실행시
+  host: 'db',// 도커로 실행시  
   // host: 'localhost', // 로컬로 실행시
   dialect: 'mysql',
 });
