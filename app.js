@@ -11,6 +11,26 @@ const cors = require('cors'); // cors 패키지 로드
 const http = require('http'); // http 패키지 로드
 const path = require('path'); // path 패키지 로드
 const app = express(); // express 애플리케이션 생성
+const { register, httpRequestDurationMicroseconds, requestCount } = require('./prometheus/metrics');
+
+app.use(cors()); // CORS 미들웨어 추가
+app.use(express.json());  // Middleware 설정 
+
+// 메트릭 수집용 미들웨어 설정
+app.use((req, res, next) => {
+  const end = httpRequestDurationMicroseconds.startTimer();
+  res.on('finish', () => {
+    end({ method : req.method, route: req.route ? req.route.path : req.path, code : res.statusCode });
+    requestCount.inc({ method: req.method, route: req.route ? req.route.path : req.path, code: res.statusCode });
+  });
+  next();
+});
+
+// 프로메테우스 엔드포인트
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
+});
 
 // Socket.io 설정
 const server = http.createServer(app);
