@@ -16,8 +16,10 @@ const elevenLabsServices = {
 const personaToModel = {
   '침착맨': 'twentyQ',
   '장원영': 'lucky',
+  '쌈디': 'simon',
   '이서진': 'simon',
-  'MZ': 'mz'
+  'MZ': 'mz',
+  "맑눈광": 'mz'
 };
 
 const ttsSettings = {

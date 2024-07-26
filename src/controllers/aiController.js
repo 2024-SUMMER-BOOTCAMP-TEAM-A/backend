@@ -16,7 +16,9 @@ class AIController {
       '침착맨': 'twentyQ',
       '장원영': 'lucky',
       '쌈디': 'simon',
-      'MZ': 'mz'
+      '이서진': 'simon',
+      'MZ': 'mz',
+      "맑눈광": 'mz'
     };
 
     this.chat = this.chat.bind(this);
@@ -38,6 +40,7 @@ class AIController {
     try {
         const service = this.getOpenAIService(persona);
         if (!service || typeof service.chat !== 'function') {
+          console.error('Error generating chat response:', error.message);
             throw new Error('Chat service is not properly configured');
         }
 
