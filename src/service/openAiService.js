@@ -68,7 +68,7 @@ class OpenAIService {
     }
 
     const conversationText = conversationHistory
-      .map(entry => `${entry.role}: ${entry.content}`)
+      .map(entry => `${entry.sender}: ${entry.content}`)
       .join('\n');
 
     try {
