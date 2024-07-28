@@ -8,7 +8,7 @@ async function signup(req, res) {
     // 이메일 중복 체크
     const isEmailTaken = await userService.isEmailTaken(email);
     if (isEmailTaken) {
-      return res.status(400).json({ message: 'Email is already taken' });
+      return res.status(400).json({ message: '이메일이 중복되었습니다.' });
     }
 
     const user = await userService.createUser({ email, password, nickname });
