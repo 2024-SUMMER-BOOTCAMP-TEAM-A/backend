@@ -5,7 +5,7 @@
     "description": "2024-SUMMER-BOOTCAMP-TEAM-A",
     "version": "1.0.0"
   },
-  "host": "localhost:8000",
+  "host": "person-a.site",
   "basePath": "/",
   "tags": [
     {
@@ -17,8 +17,8 @@
       "description": "User 관련 API"
     },
     {
-      "name": "test",
-      "description": "테스트 API"
+      "name": "AI",
+      "description": "AI 관련 API"
     },
     {
       "name": "userSelection",
@@ -26,7 +26,7 @@
     }
   ],
   "schemes": [
-    "http"
+    "https"
   ],
   "securityDefinitions": {
     "Bearer": {
@@ -40,7 +40,7 @@
     "/": {
       "get": {
         "description": "",
-        "tags": ["test"],
+        "tags": ["AI"],
         "responses": {
           "200": {
             "description": "성공"
@@ -259,7 +259,7 @@
     "/ai/chat": {
       "post": {
         "description": "",
-        "tags": ["test"],
+        "tags": ["AI"],
         "parameters": [
           {
             "name": "body",
@@ -293,7 +293,7 @@
     "/ai/reset": {
       "post": {
         "description": "",
-        "tags": ["test"],
+        "tags": ["AI"],
         "parameters": [
           {
             "name": "body",
@@ -318,10 +318,10 @@
         }
       }
     },
-    "/api/v1/logs/createSummary": {
+    "/api/v1/logs/summary": {
       "post": {
         "description": "",
-        "tags": ["test"],
+        "tags": ["AI"],
         "parameters": [
           {
             "name": "body",
@@ -354,10 +354,10 @@
         ]
       }
     },
-    "/api/v1/logs/getSummary/{chatLogId}": {
+    "/api/v1/logs/summary/{summaryLogId}": {
       "get": {
         "description": "",
-        "tags": ["test"],
+        "tags": ["AI"],
         "parameters": [
           {
             "name": "chatLogId",
@@ -390,7 +390,7 @@
     "/api/v1/logs/getUpload": {
       "get": {
         "description": "",
-        "tags": ["test"],
+        "tags": ["AI"],
         "parameters": [
           {
             "name": "fileName",
