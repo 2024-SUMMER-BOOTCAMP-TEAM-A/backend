@@ -2,9 +2,12 @@ require('dotenv').config();
 const fetch = require('node-fetch');
 const { Storage } = require('@google-cloud/storage');
 const sharp = require('sharp');
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 const openaiService = require('../service/openAiService');
+const bucketName = process.env.GCLOUD_STORAGE_BUCKET;
+const openai = require('../config/openAiConfig');
+const { OpenAI } = require('openai');
 
 const storage = new Storage({
   credentials: {
@@ -22,25 +25,30 @@ const storage = new Storage({
   },
 });
 
-const bucketName = process.env.GCLOUD_STORAGE_BUCKET;
-const openai = require('../config/openAiConfig');
-const picturePrompt = require('../prompt/picturePrompt.json');
+
 
 class ImageService {
-  constructor(config) {
+  constructor(config, promptFilePath) {
     this.config = config;
-    this.openaiClient = new openaiService({ apiKey: this.config.apiKey }).openaiClient;
+    this.promptFilePath = path.resolve(__dirname, promptFilePath);
+    this.openaiClient = new OpenAI({ apiKey: config.apiKey });
   }
 
   async generateAndUploadImage(summary) {
+    console.log('Current working directory:', process.cwd());
+    console.log('Resolved prompt file path:', this.promptFilePath);
+    const picturePrompt = await fs.readFile(this.promptFilePath, 'utf8');
     if (!picturePrompt) {
       throw new Error('Valid picturePrompt is required');
     }
+    console.log(picturePrompt);
+    const prompt = `When generating an image, be sure to observe the following conditions: Do not add text to the image. I want an illustration image, not containing text. ${picturePrompt}, ${summary}`;
+    console.log('제발 프롬프팅 잘좀 해봐 :', prompt);
     try {
       console.log("Generating image...");
       const response = await this.openaiClient.images.generate({
         model : openai.image.model,
-        prompt : `When generating an image, be sure to observe the following conditions: Do not add text to the image. I want an illustration image, not contain text in the image. ${picturePrompt}, ${summary}`,
+        prompt : prompt,
         n: 1,
         quality: "standard",
         size: "1792x1024",
